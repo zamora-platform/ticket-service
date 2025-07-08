@@ -1,0 +1,65 @@
+type Mutation {
+    saveTicketAgent(saveTicketAgentReq: SaveTicketAgentReq): Boolean
+    # deleteTicketAgent(id: String): Boolean
+}
+
+type Query {
+     # getDetailTicketById(id: String): TicketAgent
+     # findAllTicketAgent: [TicketAgent]
+     searchTicketAgent(searchInput: SearchInput, pageable: Pageable): SearchTicketAgentResult
+}
+
+input SaveTicketAgentReq {
+    code: String!
+    name: String!
+    address: String
+    taxCode: String
+    phone: String
+    email: String
+    note: String
+    ticketAgentContact: [TicketAgentContact]
+}
+
+input TicketAgentContact {
+    ticketAgentContactName: String
+    ticketAgentContactEmail: String
+    ticketAgentContactPhone: String
+}
+
+input SearchInput {
+    textSearch: String
+}
+
+type TicketAgentList {
+    id: String
+    code: String
+    name: String
+    address: String
+    taxCode: String
+    phone: String
+    email: String
+    note: String
+    status: TicketAgentStatus
+    createdBy: String
+    createdTime: DateTime
+    ticketAgentContact: [TicketAgentContactList]
+}
+
+type TicketAgentContactList {
+    ticketAgentContactId: String
+    ticketAgentContactName: String
+    ticketAgentContactEmail: String
+    ticketAgentContactPhone: String
+}
+
+enum TicketAgentStatus {
+    WORKING, NOT_WORKING
+}
+
+type SearchTicketAgentResult {
+    content: [TicketAgentList]
+    page: Int!
+    pageSize: Int!
+    totalRecords: Int!
+    totalPages: Int!
+}
