@@ -121,19 +121,19 @@ class TicketAgentService(
 
         if (!isCreate) {
             if (saveTicketAgentReq.code != currentTicketAgentToUpdate?.code) {
-                throw TicketAgentException("TicketAgentCodeExist", "Ticket agent code is existed!")
+                isCodeTicketAgentExisted(saveTicketAgentReq.code!!)
             }
             if (saveTicketAgentReq.name != currentTicketAgentToUpdate?.name) {
-                throw TicketAgentException("TicketAgentNameExist", "Ticket agent name is existed!")
+                isNameTicketAgentExisted(saveTicketAgentReq.name!!)
             }
             if (saveTicketAgentReq.taxCode != currentTicketAgentToUpdate?.taxCode) {
-                throw TicketAgentException("TicketAgentTaxCodeExist", "Ticket agent tax code is existed!")
+                saveTicketAgentReq.taxCode?.let { isTaxCodeTicketAgentExisted(it) }
             }
             if (saveTicketAgentReq.phone != currentTicketAgentToUpdate?.phone) {
-                throw TicketAgentException("TicketAgentPhoneExist", "Ticket agent phone is existed!")
+                saveTicketAgentReq.phone?.let { isPhoneTicketAgentExisted(it) }
             }
             if (saveTicketAgentReq.email != currentTicketAgentToUpdate?.email) {
-                throw TicketAgentException("TicketAgentEmailExist", "Ticket agent email is existed!")
+                saveTicketAgentReq.email?.let { isEmailTicketAgentExisted(it) }
             }
         } else {
             isCodeTicketAgentExisted(saveTicketAgentReq.code!!)

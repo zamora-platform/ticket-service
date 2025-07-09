@@ -119,10 +119,10 @@ class CountryService(
 
         if (!isCreate) {
             if (saveCountryReq.code != currentCountryToUpdate?.code) {
-                throw CountryException("CountryCodeExist", "Country code is existed!")
+                isCodeExisted(saveCountryReq.code!!)
             }
             if (saveCountryReq.name != currentCountryToUpdate?.name) {
-                throw CountryException("CountryNameRequired", "Country name is required!")
+                isNameExisted(saveCountryReq.name!!)
             }
         } else {
             isCodeExisted(saveCountryReq.code!!)
