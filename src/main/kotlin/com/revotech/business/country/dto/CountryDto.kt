@@ -1,6 +1,5 @@
 package com.revotech.business.country.dto
 
-import com.revotech.business.ticket_agent.dto.TicketAgentList
 import java.time.LocalDateTime
 
 data class SaveCountryReq(
@@ -21,6 +20,19 @@ data class CountryList(
     var name: String? = null,
     var status: String? = null,
     var sortOrder: Int? = null,
+    var isDefault: Boolean? = null,
+    var createdBy: String? = null,
+    var createdTime: LocalDateTime? = null,
+    var listCity: List<ListCity>? = null
+)
+
+data class CountryDetail(
+    var id: String? = null,
+    var code: String? = null,
+    var name: String? = null,
+    var status: String? = null,
+    var sortOrder: Int? = null,
+    var isDefault: Boolean? = null,
     var createdBy: String? = null,
     var createdTime: LocalDateTime? = null,
     var listCity: List<ListCity>? = null
@@ -39,12 +51,13 @@ data class SearchCountryResult(
     val totalPages: Int
 )
 
-interface CountryListProjection {
+interface CountryProjection {
     fun getId(): String
     fun getCode(): String
     fun getName(): String
     fun getStatus(): String
     fun getSortOrder(): Int
+    fun getIsDefault(): Boolean
     fun getCreatedBy(): String
     fun getCreatedTime(): LocalDateTime
 }

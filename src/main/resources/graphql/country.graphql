@@ -1,10 +1,13 @@
 extend type Mutation {
     saveCountry(saveCountryReq: SaveCountryReq): Boolean
+    deleteCountry(id: String): Boolean
+    setCountryDefault(id: String): Boolean
 }
 
 extend type Query {
     searchCountry(searchInput: SearchInput, pageable: Pageable): SearchCountryResult
     getNextCountrySortOrder: Int
+    getDetailCountryById(id: String): CountryDetail
 }
 
 input SaveCountryReq {
@@ -30,6 +33,19 @@ type CountryList {
     name: String
     status: CountryStatus
     sortOrder: Int
+    isDefault: Boolean
+    createdBy: String
+    createdTime: DateTime
+    listCity: [ListCity]
+}
+
+type CountryDetail {
+    id: String
+    code: String
+    name: String
+    status: CountryStatus
+    sortOrder: Int
+    isDefault: Boolean
     createdBy: String
     createdTime: DateTime
     listCity: [ListCity]

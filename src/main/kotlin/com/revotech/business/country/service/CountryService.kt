@@ -1,9 +1,6 @@
 package com.revotech.business.country.service
 
-import com.revotech.business.country.dto.CountryList
-import com.revotech.business.country.dto.ListCity
-import com.revotech.business.country.dto.SaveCountryReq
-import com.revotech.business.country.dto.SearchCountryResult
+import com.revotech.business.country.dto.*
 import com.revotech.business.country.entity.City
 import com.revotech.business.country.entity.CityStatus
 import com.revotech.business.country.entity.Country
@@ -12,7 +9,6 @@ import com.revotech.business.country.exception.CountryException
 import com.revotech.business.country.repository.CityRepository
 import com.revotech.business.country.repository.CountryRepository
 import com.revotech.business.ticket_agent.dto.SearchInput
-import com.revotech.business.ticket_agent.dto.SearchTicketAgentResult
 import com.revotech.util.WebUtil
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -158,6 +154,7 @@ class CountryService(
                 name = item.getName(),
                 status = item.getStatus(),
                 sortOrder = item.getSortOrder(),
+                isDefault = item.getIsDefault(),
                 createdBy = item.getCreatedBy(),
                 createdTime = item.getCreatedTime(),
                 listCity = cityListMap[item.getId()]?.map { cityList ->
@@ -180,5 +177,66 @@ class CountryService(
 
     fun getNextCountrySortOrder(): Int {
         return countryRepository.getNextCountrySortOrder()
+    }
+
+    fun getDetailCountryById(id: String): CountryDetail {
+        val detailCountry = countryRepository.getDetailCountryById(id) ?: throw CountryException(
+            "CountryNotFound", "Country not found"
+        )
+
+        val listCity = cityRepository.findCitiesByCountryIds(
+            listOf(detailCountry.getId())
+        )
+
+        return CountryDetail(
+            id = detailCountry.getId(),
+            code = detailCountry.getCode(),
+            name = detailCountry.getName(),
+            status = detailCountry.getStatus(),
+            sortOrder = detailCountry.getSortOrder(),
+            isDefault = detailCountry.getIsDefault(),
+            createdBy = detailCountry.getCreatedBy(),
+            createdTime = detailCountry.getCreatedTime(),
+            listCity = listCity.map { item ->
+                ListCity(
+                    cityId = item.getCityId(),
+                    cityName = item.getCityName()
+                )
+            }
+        )
+    }
+
+    @Transactional
+    fun deleteCountry(id: String): Boolean {
+
+        val currentCountry = findCountryById(id)
+
+        cityRepository.softDeleteCityByCountryId(
+            listOf(currentCountry?.id!!)
+        )
+
+        countryRepository.save(
+            currentCountry.apply {
+                status = CountryStatus.INACTIVE
+            }
+        )
+
+        return true
+    }
+
+    @Transactional
+    fun setCountryDefault(id: String): Boolean {
+
+        val currentCountry = findCountryById(id)
+
+        if (currentCountry?.isDefault == true) {
+            throw CountryException("CountryAlreadyIsDefault", "This country already is default")
+        } else {
+            countryRepository.unsetCountryIsDefaultTrueToFalse()
+            currentCountry!!.isDefault = true
+            countryRepository.save(currentCountry)
+        }
+
+        return true
     }
 }

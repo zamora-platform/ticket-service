@@ -11,4 +11,14 @@ class CountryMutation(private val countryService: CountryService) {
     fun saveCountry(saveCountryReq: SaveCountryReq): Boolean {
         return countryService.saveCountry(saveCountryReq)
     }
+
+    @DgsMutation
+    fun deleteCountry(id: String): Boolean {
+        return countryService.deleteCountry(id)
+    }
+
+    @DgsMutation
+    fun setCountryDefault(id: String): Boolean {
+        return countryService.setCountryDefault(id)
+    }
 }
