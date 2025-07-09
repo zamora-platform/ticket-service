@@ -50,8 +50,8 @@ interface AirportRepository : JpaRepository<Airport, String> {
             LEFT JOIN t_city ct ON a.city_id = ct.id
             WHERE (:textSearch IS NULL OR
                    LOWER(a.code) LIKE LOWER(CONCAT('%', :textSearch, '%')) OR
-                   LOWER(a.name) LIKE LOWER(CONCAT('%', :textSearch, '%'))
-            AND a.status = 'WORKING')
+                   LOWER(a.name) LIKE LOWER(CONCAT('%', :textSearch, '%')))
+            AND a.status = 'WORKING'
             ORDER BY a.is_default DESC, a.sort_order ASC, a.created_time DESC
         """, nativeQuery = true
     )
