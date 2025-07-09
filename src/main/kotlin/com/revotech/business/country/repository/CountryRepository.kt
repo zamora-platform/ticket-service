@@ -79,4 +79,21 @@ interface CountryRepository : JpaRepository<Country, String> {
     @Modifying
     @Query("UPDATE Country c SET c.isDefault = false WHERE c.isDefault = true")
     fun unsetCountryIsDefaultTrueToFalse(): Int
+
+    @Query(
+        """
+            SELECT c.id           AS id,
+                   c.code         AS code,
+                   c.name         AS name,
+                   c.status       AS status,
+                   c.sort_order   AS sortOrder,
+                   c.is_default   AS isDefault,
+                   c.created_by   AS createdBy,
+                   c.created_time AS createdTime
+            FROM t_country c
+            WHERE c.status = 'ACTIVE'
+            ORDER BY c.sort_order ASC, c.created_time DESC
+        """, nativeQuery = true
+    )
+    fun getAllCountryAndItCity(): List<CountryProjection>
 }

@@ -239,4 +239,35 @@ class CountryService(
 
         return true
     }
+
+    fun getAllCountryAndItCity(): List<CountryList> {
+        val allCountry = countryRepository.getAllCountryAndItCity()
+
+        val cityList = if (allCountry.isNotEmpty()) {
+            cityRepository.findCitiesByCountryIds(allCountry.map { it.getId() })
+        } else {
+            emptyList()
+        }
+
+        val cityListMap = cityList.groupBy { it.getCountryId() }
+
+        return allCountry.map { item ->
+            CountryList(
+                id = item.getId(),
+                code = item.getCode(),
+                name = item.getName(),
+                status = item.getStatus(),
+                sortOrder = item.getSortOrder(),
+                isDefault = item.getIsDefault(),
+                createdBy = item.getCreatedBy(),
+                createdTime = item.getCreatedTime(),
+                listCity = cityListMap[item.getId()]?.map { cityList ->
+                    ListCity(
+                        cityId = cityList.getCityId(),
+                        cityName = cityList.getCityName()
+                    )
+                }
+            )
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.revotech.business.country.graphql
 import com.netflix.graphql.dgs.DgsComponent
 import com.netflix.graphql.dgs.DgsQuery
 import com.revotech.business.country.dto.CountryDetail
+import com.revotech.business.country.dto.CountryList
 import com.revotech.business.country.dto.SearchCountryResult
 import com.revotech.business.country.service.CountryService
 import com.revotech.business.ticket_agent.dto.SearchInput
@@ -26,5 +27,10 @@ class CountryQuery(private val countryService: CountryService) {
     @DgsQuery
     fun getDetailCountryById(id: String): CountryDetail {
         return countryService.getDetailCountryById(id)
+    }
+
+    @DgsQuery
+    fun getAllCountryAndItCity(): List<CountryList> {
+        return countryService.getAllCountryAndItCity()
     }
 }

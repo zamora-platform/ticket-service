@@ -8,6 +8,7 @@ extend type Query {
     searchCountry(searchInput: SearchInput, pageable: Pageable): SearchCountryResult
     getNextCountrySortOrder: Int
     getDetailCountryById(id: String): CountryDetail
+    getAllCountryAndItCity: [CountryList]
 }
 
 input SaveCountryReq {
