@@ -95,7 +95,8 @@ class TicketAgentService(
                             name = it.ticketAgentContactName,
                             email = it.ticketAgentContactEmail,
                             phone = it.ticketAgentContactPhone,
-                            ticketAgentId = currentTicketAgentToUpdate.id
+                            ticketAgentId = currentTicketAgentToUpdate.id,
+                            status = TicketAgentContactStatus.WORKING
                         )
                     }
                 )
