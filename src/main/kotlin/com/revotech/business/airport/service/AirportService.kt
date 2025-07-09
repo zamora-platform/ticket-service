@@ -1,5 +1,6 @@
 package com.revotech.business.airport.service
 
+import com.revotech.business.airport.dto.AirportDetail
 import com.revotech.business.airport.dto.SaveAirportReq
 import com.revotech.business.airport.dto.SearchAirportResult
 import com.revotech.business.airport.dto.SearchInput
@@ -9,10 +10,12 @@ import com.revotech.business.airport.exception.AirportException
 import com.revotech.business.airport.repository.AirportRepository
 import com.revotech.business.country.entity.City
 import com.revotech.business.country.entity.Country
+import com.revotech.business.country.exception.CountryException
 import com.revotech.business.country.service.CountryService
 import com.revotech.util.WebUtil
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class AirportService(
@@ -162,15 +165,17 @@ class AirportService(
         )
     }
 
-    fun getDetailAirportById(id: String): com.revotech.business.airport.dto.Airport {
+    fun getDetailAirportById(id: String): AirportDetail {
         val airportDetail = airportRepository.getDetailAirportById(id)
             ?: throw AirportException("AirportNotFound", "Airport not found!")
 
-        return com.revotech.business.airport.dto.Airport(
+        return AirportDetail(
             id = airportDetail.getId(),
             code = airportDetail.getCode(),
             name = airportDetail.getName(),
+            countryId = airportDetail.getCountryId(),
             countryName = airportDetail.getCountryName(),
+            cityId = airportDetail.getCityId(),
             cityName = airportDetail.getCityName(),
             status = airportDetail.getStatus(),
             sortOrder = airportDetail.getSortOrder(),
@@ -188,6 +193,22 @@ class AirportService(
             status = AirportStatus.NOT_WORKING
         }
         airportRepository.save(currentAirport)
+
+        return true
+    }
+
+    @Transactional
+    fun setAirportDefault(id: String): Boolean {
+
+        val currentAirport = findAirportById(id)
+
+        if (currentAirport.isDefault == true) {
+            throw CountryException("CountryAlreadyIsDefault", "This country already is default")
+        } else {
+            airportRepository.unsetAirportIsDefaultTrueToFalse()
+            currentAirport.isDefault = true
+            airportRepository.save(currentAirport)
+        }
 
         return true
     }

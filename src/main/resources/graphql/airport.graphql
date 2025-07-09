@@ -1,12 +1,13 @@
 extend type Mutation {
     saveAirport(saveAirportReq: SaveAirportReq): Boolean
     deleteAirport(id: String): Boolean
+    setAirportDefault(id: String): Boolean
 }
 
 extend type Query {
     getNextAirportSortOrder: Int
     searchAirport(searchInput: SearchInput, pageable: Pageable): SearchAirportResult
-    getDetailAirportById(id: String): Airport
+    getDetailAirportById(id: String): AirportDetail
 }
 
 input SaveAirportReq {
@@ -23,6 +24,21 @@ type Airport {
     code: String
     name: String
     countryName: String
+    cityName: String
+    status: String
+    sortOrder: Int
+    isDefault: Boolean
+    createdBy: String
+    createdTime: DateTime
+}
+
+type AirportDetail {
+    id: String
+    code: String
+    name: String
+    countryId: String
+    countryName: String
+    cityId: String
     cityName: String
     status: String
     sortOrder: Int

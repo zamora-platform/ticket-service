@@ -2,7 +2,7 @@ package com.revotech.business.airport.graphql
 
 import com.netflix.graphql.dgs.DgsComponent
 import com.netflix.graphql.dgs.DgsQuery
-import com.revotech.business.airport.dto.Airport
+import com.revotech.business.airport.dto.AirportDetail
 import com.revotech.business.airport.dto.SearchAirportResult
 import com.revotech.business.airport.dto.SearchInput
 import com.revotech.business.airport.service.AirportService
@@ -24,7 +24,7 @@ class AirportQuery(private val airportService: AirportService) {
     }
 
     @DgsQuery
-    fun getDetailAirportById(id: String): Airport {
+    fun getDetailAirportById(id: String): AirportDetail {
         return airportService.getDetailAirportById(id)
     }
 }

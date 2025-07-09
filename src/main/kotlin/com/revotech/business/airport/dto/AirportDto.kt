@@ -24,11 +24,41 @@ data class Airport(
     var createdTime: LocalDateTime? = null,
 )
 
+data class AirportDetail(
+    var id: String? = null,
+    var code: String? = null,
+    var name: String? = null,
+    var countryId: String? = null,
+    var countryName: String? = null,
+    var cityId: String? = null,
+    var cityName: String? = null,
+    var status: String? = null,
+    var sortOrder: Int? = null,
+    var isDefault: Boolean? = null,
+    var createdBy: String? = null,
+    var createdTime: LocalDateTime? = null,
+)
+
 interface AirportProjection {
     fun getId(): String
     fun getCode(): String
     fun getName(): String
     fun getCountryName(): String
+    fun getCityName(): String
+    fun getStatus(): String
+    fun getSortOrder(): Int
+    fun getIsDefault(): Boolean
+    fun getCreatedBy(): String
+    fun getCreatedTime(): LocalDateTime
+}
+
+interface AirportDetailProjection {
+    fun getId(): String
+    fun getCode(): String
+    fun getName(): String
+    fun getCountryId(): String
+    fun getCountryName(): String
+    fun getCityId(): String
     fun getCityName(): String
     fun getStatus(): String
     fun getSortOrder(): Int
