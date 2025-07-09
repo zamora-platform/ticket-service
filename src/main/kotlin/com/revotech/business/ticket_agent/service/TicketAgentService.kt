@@ -3,6 +3,7 @@ package com.revotech.business.ticket_agent.service
 import com.revotech.business.ticket_agent.dto.*
 import com.revotech.business.ticket_agent.entity.TicketAgent
 import com.revotech.business.ticket_agent.entity.TicketAgentContact
+import com.revotech.business.ticket_agent.entity.TicketAgentContactStatus
 import com.revotech.business.ticket_agent.entity.TicketAgentStatus
 import com.revotech.business.ticket_agent.exception.TicketAgentException
 import com.revotech.business.ticket_agent.exception.TicketAgentNotFoundException
@@ -56,7 +57,8 @@ class TicketAgentService(
                             name = it.ticketAgentContactName,
                             email = it.ticketAgentContactEmail,
                             phone = it.ticketAgentContactPhone,
-                            ticketAgentId = newTicketAgent.id
+                            ticketAgentId = newTicketAgent.id,
+                            status = TicketAgentContactStatus.WORKING
                         )
                     }
                 )
@@ -257,5 +259,43 @@ class TicketAgentService(
                 )
             }
         )
+    }
+
+    @Transactional
+    fun deleteTicketAgent(id: String): Boolean {
+
+        val currentTicketAgent = findTicketAgentById(id)
+
+        ticketAgentContactRepository.softDeleteTicketAgentContactByAgentIds(
+            listOf(currentTicketAgent.id!!)
+        )
+
+        ticketAgentRepository.save(
+            currentTicketAgent.apply {
+                status = TicketAgentStatus.NOT_WORKING
+            }
+        )
+        return true
+    }
+
+    fun findTicketAgentContactById(ticketAgentContactId: String): TicketAgentContact? {
+        return ticketAgentContactRepository.findTicketAgentContactById(ticketAgentContactId) ?: throw TicketAgentException(
+            "TicketAgentContactNotFound", "Ticket agent contact not found"
+        )
+    }
+
+    @Transactional
+    fun deleteTicketAgentContact(ticketAgentContactId: String): Boolean {
+
+        val currentTicketAgentContact = findTicketAgentContactById(ticketAgentContactId)
+
+        currentTicketAgentContact?.apply {
+            status = TicketAgentContactStatus.NOT_WORKING
+        }?.let {
+            ticketAgentContactRepository.save(
+                it
+            )
+        }
+        return true
     }
 }

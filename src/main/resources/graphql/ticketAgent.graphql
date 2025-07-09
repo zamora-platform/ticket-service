@@ -1,15 +1,16 @@
 type Mutation {
     saveTicketAgent(saveTicketAgentReq: SaveTicketAgentReq): Boolean
-    # deleteTicketAgent(id: String): Boolean
+    deleteTicketAgent(id: String!): Boolean
+    deleteTicketAgentContact(ticketAgentContactId: String!): Boolean
 }
 
 type Query {
     getDetailTicketById(id: String): TicketAgentDetail
-     # findAllTicketAgent: [TicketAgent]
     searchTicketAgent(searchInput: SearchInput, pageable: Pageable): SearchTicketAgentResult
 }
 
 input SaveTicketAgentReq {
+    id: String
     code: String!
     name: String!
     address: String

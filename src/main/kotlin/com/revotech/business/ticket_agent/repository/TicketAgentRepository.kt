@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param
 interface TicketAgentRepository : JpaRepository<TicketAgent, String> {
     @Query("""
         SELECT tta.*
-        FROM t_ticket_agent
+        FROM t_ticket_agent tta
         WHERE tta.id = :id
         AND tta.status = 'WORKING'
     """, nativeQuery = true)
@@ -41,6 +41,7 @@ interface TicketAgentRepository : JpaRepository<TicketAgent, String> {
                    LOWER(ta.code) LIKE LOWER(CONCAT('%', :textSearch, '%')) OR
                    LOWER(ta.name) LIKE LOWER(CONCAT('%', :textSearch, '%')) OR
                    LOWER(ta.email) LIKE LOWER(CONCAT('%', :textSearch, '%')))
+            AND ta.status = 'WORKING'
         """, nativeQuery = true)
     fun searchTicketAgent(
         @Param("textSearch") textSearch: String?,

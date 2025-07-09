@@ -11,4 +11,14 @@ class TicketAgentMutation(private val ticketAgentService: TicketAgentService) {
     fun saveTicketAgent(saveTicketAgentReq: SaveTicketAgentReq): Boolean {
         return ticketAgentService.saveTicketAgent(saveTicketAgentReq)
     }
+
+    @DgsMutation
+    fun deleteTicketAgent(id: String): Boolean {
+        return ticketAgentService.deleteTicketAgent(id)
+    }
+
+    @DgsMutation
+    fun deleteTicketAgentContact(ticketAgentContactId: String): Boolean {
+        return ticketAgentService.deleteTicketAgentContact(ticketAgentContactId)
+    }
 }

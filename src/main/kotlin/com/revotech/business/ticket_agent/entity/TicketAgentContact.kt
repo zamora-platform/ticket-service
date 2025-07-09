@@ -12,5 +12,11 @@ class TicketAgentContact(
     var name: String? = null,
     var email: String? = null,
     var phone: String? = null,
-    var ticketAgentId: String? = null
+    var ticketAgentId: String? = null,
+    @Enumerated(EnumType.STRING)
+    var status: TicketAgentContactStatus? = null
 ) : JpaActivityInfo()
+
+enum class TicketAgentContactStatus {
+    WORKING, NOT_WORKING
+}
