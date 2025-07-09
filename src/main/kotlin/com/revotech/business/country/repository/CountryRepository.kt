@@ -40,7 +40,7 @@ interface CountryRepository : JpaRepository<Country, String> {
                    LOWER(c.code) LIKE LOWER(CONCAT('%', :textSearch, '%')) OR
                    LOWER(c.name) LIKE LOWER(CONCAT('%', :textSearch, '%'))
             AND c.status = 'ACTIVE')
-            ORDER BY c.sort_order ASC, c.created_time DESC
+            ORDER BY c.is_default DESC, c.sort_order ASC, c.created_time DESC
         """, nativeQuery = true
     )
     fun searchCountry(
@@ -92,7 +92,7 @@ interface CountryRepository : JpaRepository<Country, String> {
                    c.created_time AS createdTime
             FROM t_country c
             WHERE c.status = 'ACTIVE'
-            ORDER BY c.sort_order ASC, c.created_time DESC
+            ORDER BY c.is_default DESC, c.sort_order ASC, c.created_time DESC
         """, nativeQuery = true
     )
     fun getAllCountryAndItCity(): List<CountryProjection>
