@@ -8,7 +8,6 @@ import com.revotech.business.country.entity.CountryStatus
 import com.revotech.business.country.exception.CountryException
 import com.revotech.business.country.repository.CityRepository
 import com.revotech.business.country.repository.CountryRepository
-import com.revotech.business.ticket_agent.dto.SearchInput
 import com.revotech.util.WebUtil
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -37,7 +36,7 @@ class CountryService(
                     code = saveCountryReq.code,
                     name = saveCountryReq.name,
                     isDefault = false,
-                    sortOrder = saveCountryReq.sortOrder,
+                    sortOrder = saveCountryReq.sortOrder ?: getNextCountrySortOrder(),
                     status = CountryStatus.ACTIVE
                 ).apply {
                     createdBy = userId
@@ -133,6 +132,12 @@ class CountryService(
     fun findCountryById(id: String): Country? {
         return countryRepository.findCountryById(id) ?: throw CountryException(
             "CountryNotFound", "Country not found"
+        )
+    }
+
+    fun findCityById(id: String): City? {
+        return cityRepository.findCityById(id) ?: throw CountryException(
+            "CityNotFound", "City not found"
         )
     }
 

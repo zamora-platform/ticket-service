@@ -51,6 +51,10 @@ data class SearchCountryResult(
     val totalPages: Int
 )
 
+data class SearchInput(
+    var textSearch: String? = null
+)
+
 interface CountryProjection {
     fun getId(): String
     fun getCode(): String

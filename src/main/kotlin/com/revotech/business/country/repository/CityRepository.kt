@@ -37,4 +37,6 @@ interface CityRepository : JpaRepository<City, String> {
     fun softDeleteCityByCountryId(
         @Param("countryId") countryId: List<String>,
     ): Int
+
+    fun findCityById(id: String): City?
 }

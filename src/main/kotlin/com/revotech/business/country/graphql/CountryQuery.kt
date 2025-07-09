@@ -5,8 +5,8 @@ import com.netflix.graphql.dgs.DgsQuery
 import com.revotech.business.country.dto.CountryDetail
 import com.revotech.business.country.dto.CountryList
 import com.revotech.business.country.dto.SearchCountryResult
+import com.revotech.business.country.dto.SearchInput
 import com.revotech.business.country.service.CountryService
-import com.revotech.business.ticket_agent.dto.SearchInput
 import com.revotech.graphql.GraphqlUtil
 import com.revotech.graphql.type.CustomPageable
 
