@@ -68,7 +68,7 @@ class TicketAgentService(
             val currentTicketAgentToUpdate = findTicketAgentById(saveTicketAgentReq.id!!)
             validate(
                 saveTicketAgentReq = saveTicketAgentReq,
-                isCreate = true,
+                isCreate = false,
                 currentTicketAgentToUpdate = currentTicketAgentToUpdate
             )
 
