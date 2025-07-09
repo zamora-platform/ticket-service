@@ -48,6 +48,21 @@ data class TicketAgentList(
     val ticketAgentContact: List<TicketAgentContactList>? = null
 )
 
+data class TicketAgentDetail(
+    val id: String? = null,
+    val code: String? = null,
+    val name: String? = null,
+    val address: String? = null,
+    val taxCode: String? = null,
+    val phone: String? = null,
+    val email: String? = null,
+    val note: String? = null,
+    val status: String? = null,
+    val createdBy: String? = null,
+    val createdTime: LocalDateTime? = null,
+    val ticketAgentContact: List<TicketAgentContactList>? = null
+)
+
 interface TicketAgentListProjection {
     fun getId(): String
     fun getCode(): String

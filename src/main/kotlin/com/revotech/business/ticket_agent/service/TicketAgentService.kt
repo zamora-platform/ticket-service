@@ -123,9 +123,21 @@ class TicketAgentService(
             if (saveTicketAgentReq.name != currentTicketAgentToUpdate?.name) {
                 throw TicketAgentException("TicketAgentNameExist", "Ticket agent name is existed!")
             }
+            if (saveTicketAgentReq.taxCode != currentTicketAgentToUpdate?.taxCode) {
+                throw TicketAgentException("TicketAgentTaxCodeExist", "Ticket agent tax code is existed!")
+            }
+            if (saveTicketAgentReq.phone != currentTicketAgentToUpdate?.phone) {
+                throw TicketAgentException("TicketAgentPhoneExist", "Ticket agent phone is existed!")
+            }
+            if (saveTicketAgentReq.email != currentTicketAgentToUpdate?.email) {
+                throw TicketAgentException("TicketAgentEmailExist", "Ticket agent email is existed!")
+            }
         } else {
             isCodeTicketAgentExisted(saveTicketAgentReq.code!!)
             isNameTicketAgentExisted(saveTicketAgentReq.name!!)
+            saveTicketAgentReq.taxCode?.let { isTaxCodeTicketAgentExisted(it) }
+            saveTicketAgentReq.phone?.let { isPhoneTicketAgentExisted(it) }
+            saveTicketAgentReq.email?.let { isEmailTicketAgentExisted(it) }
         }
     }
 
@@ -148,6 +160,27 @@ class TicketAgentService(
         val isExisted = ticketAgentRepository.existsByName(name)
         if (isExisted) {
             throw TicketAgentException("TicketAgentNameExist", "Ticket agent name is existed!")
+        }
+    }
+
+    fun isTaxCodeTicketAgentExisted(taxCode: String) {
+        val isExisted = ticketAgentRepository.existsByTaxCode(taxCode)
+        if (isExisted) {
+            throw TicketAgentException("TicketAgentTaxCodeExist", "Ticket agent tax code is existed!")
+        }
+    }
+
+    fun isPhoneTicketAgentExisted(taxCode: String) {
+        val isExisted = ticketAgentRepository.existsByPhone(taxCode)
+        if (isExisted) {
+            throw TicketAgentException("TicketAgentPhoneExist", "Ticket agent phone is existed!")
+        }
+    }
+
+    fun isEmailTicketAgentExisted(email: String) {
+        val isExisted = ticketAgentRepository.existsByEmail(email)
+        if (isExisted) {
+            throw TicketAgentException("TicketAgentEmailExist", "Ticket agent email is existed!")
         }
     }
 
@@ -192,6 +225,37 @@ class TicketAgentService(
             pageSize = ticketAgentList.size,
             totalRecords = ticketAgentList.totalElements.toInt(),
             totalPages = ticketAgentList.totalPages
+        )
+    }
+
+    fun getDetailTicketById(id: String): TicketAgentDetail {
+        val detailTicketAgent = ticketAgentRepository.getDetailTicketById(id)
+            ?: throw TicketAgentException("TicketAgentNotFound", "Ticket agent not found")
+
+        val listTicketAgentContact = ticketAgentContactRepository.findContactsByAgentIds(
+            listOf(detailTicketAgent.getId())
+        )
+
+        return TicketAgentDetail(
+            id = detailTicketAgent.getId(),
+            code = detailTicketAgent.getCode(),
+            name = detailTicketAgent.getName(),
+            address = detailTicketAgent.getAddress(),
+            taxCode = detailTicketAgent.getTaxCode(),
+            phone = detailTicketAgent.getPhone(),
+            email = detailTicketAgent.getEmail(),
+            note = detailTicketAgent.getNote(),
+            status = detailTicketAgent.getStatus(),
+            createdBy = detailTicketAgent.getCreatedBy(),
+            createdTime = detailTicketAgent.getCreatedTime(),
+            ticketAgentContact = listTicketAgentContact.map { item ->
+                TicketAgentContactList(
+                    ticketAgentContactId = item.getTicketAgentId(),
+                    ticketAgentContactName = item.getName(),
+                    ticketAgentContactEmail = item.getEmail(),
+                    ticketAgentContactPhone = item.getPhone()
+                )
+            }
         )
     }
 }

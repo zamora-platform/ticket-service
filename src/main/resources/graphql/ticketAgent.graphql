@@ -4,9 +4,9 @@ type Mutation {
 }
 
 type Query {
-     # getDetailTicketById(id: String): TicketAgent
+    getDetailTicketById(id: String): TicketAgentDetail
      # findAllTicketAgent: [TicketAgent]
-     searchTicketAgent(searchInput: SearchInput, pageable: Pageable): SearchTicketAgentResult
+    searchTicketAgent(searchInput: SearchInput, pageable: Pageable): SearchTicketAgentResult
 }
 
 input SaveTicketAgentReq {
@@ -50,6 +50,21 @@ type TicketAgentContactList {
     ticketAgentContactName: String
     ticketAgentContactEmail: String
     ticketAgentContactPhone: String
+}
+
+type TicketAgentDetail {
+    id: String
+    code: String
+    name: String
+    address: String
+    taxCode: String
+    phone: String
+    email: String
+    note: String
+    status: TicketAgentStatus
+    createdBy: String
+    createdTime: DateTime
+    ticketAgentContact: [TicketAgentContactList]
 }
 
 enum TicketAgentStatus {
