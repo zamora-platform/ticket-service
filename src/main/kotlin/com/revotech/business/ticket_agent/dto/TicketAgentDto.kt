@@ -1,8 +1,6 @@
 package com.revotech.business.ticket_agent.dto
 
-import com.revotech.business.ticket_agent.entity.TicketAgentStatus
 import java.time.LocalDateTime
-import java.util.*
 
 data class SaveTicketAgentReq(
     var id: String? = null,

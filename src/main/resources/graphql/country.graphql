@@ -1,0 +1,49 @@
+extend type Mutation {
+    saveCountry(saveCountryReq: SaveCountryReq): Boolean
+}
+
+extend type Query {
+    searchCountry(searchInput: SearchInput, pageable: Pageable): SearchCountryResult
+    getNextCountrySortOrder: Int
+}
+
+input SaveCountryReq {
+    id: String
+    code: String
+    name: String
+    sortOrder: Int
+    listCity: [ListCityReq]
+}
+
+input ListCityReq {
+    cityName: String
+}
+
+enum CountryStatus {
+    ACTIVE,
+    INACTIVE
+}
+
+type CountryList {
+    id: String
+    code: String
+    name: String
+    status: CountryStatus
+    sortOrder: Int
+    createdBy: String
+    createdTime: DateTime
+    listCity: [ListCity]
+}
+
+type ListCity {
+    cityId: String
+    cityName: String
+}
+
+type SearchCountryResult {
+    content: [CountryList]
+    page: Int!
+    pageSize: Int!
+    totalRecords: Int!
+    totalPages: Int!
+}

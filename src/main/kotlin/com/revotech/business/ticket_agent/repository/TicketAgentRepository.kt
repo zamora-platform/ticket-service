@@ -42,6 +42,7 @@ interface TicketAgentRepository : JpaRepository<TicketAgent, String> {
                    LOWER(ta.name) LIKE LOWER(CONCAT('%', :textSearch, '%')) OR
                    LOWER(ta.email) LIKE LOWER(CONCAT('%', :textSearch, '%')))
             AND ta.status = 'WORKING'
+            ORDER BY ta.created_time DESC
         """, nativeQuery = true)
     fun searchTicketAgent(
         @Param("textSearch") textSearch: String?,
