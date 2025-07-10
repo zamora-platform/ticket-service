@@ -3,6 +3,7 @@ package com.revotech.business.airport.repository
 import com.revotech.business.airport.dto.AirportDetailProjection
 import com.revotech.business.airport.dto.AirportProjection
 import com.revotech.business.airport.entity.Airport
+import com.revotech.business.airport.entity.AirportStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -21,8 +22,8 @@ interface AirportRepository : JpaRepository<Airport, String> {
     )
     fun findAirportById(@Param("id") id: String): Airport?
 
-    fun existsByCode(code: String): Boolean
-    fun existsByName(name: String): Boolean
+    fun existsByCodeAndStatus(code: String, status: AirportStatus): Boolean
+    fun existsByNameAndStatus(name: String, status: AirportStatus): Boolean
 
     @Query(
         """
@@ -88,4 +89,6 @@ interface AirportRepository : JpaRepository<Airport, String> {
     @Modifying
     @Query("UPDATE Airport c SET c.isDefault = false WHERE c.isDefault = true")
     fun unsetAirportIsDefaultTrueToFalse(): Int
+
+    fun findByCountryIdAndStatus(countryId: String, status: AirportStatus): Airport?
 }

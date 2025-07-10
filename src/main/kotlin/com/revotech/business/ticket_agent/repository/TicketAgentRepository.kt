@@ -2,6 +2,7 @@ package com.revotech.business.ticket_agent.repository
 
 import com.revotech.business.ticket_agent.dto.TicketAgentListProjection
 import com.revotech.business.ticket_agent.entity.TicketAgent
+import com.revotech.business.ticket_agent.entity.TicketAgentStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -17,11 +18,11 @@ interface TicketAgentRepository : JpaRepository<TicketAgent, String> {
     """, nativeQuery = true)
     fun findTicketAgentById(id: String): TicketAgent?
 
-    fun existsByCode(code: String): Boolean
-    fun existsByName(name: String): Boolean
-    fun existsByTaxCode(taxCode: String): Boolean
-    fun existsByPhone(phone: String): Boolean
-    fun existsByEmail(email: String): Boolean
+    fun existsByCodeAndStatus(code: String, status: TicketAgentStatus): Boolean
+    fun existsByNameAndStatus(name: String, status: TicketAgentStatus): Boolean
+    fun existsByTaxCodeAndStatus(taxCode: String, status: TicketAgentStatus): Boolean
+    fun existsByPhoneAndStatus(phone: String, status: TicketAgentStatus): Boolean
+    fun existsByEmailAndStatus(email: String, status: TicketAgentStatus): Boolean
 
     @Query(
         """

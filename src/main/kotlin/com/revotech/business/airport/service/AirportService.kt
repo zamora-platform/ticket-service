@@ -71,14 +71,14 @@ class AirportService(
     }
 
     fun isCodeAirportExisted(code: String) {
-        val isExisted = airportRepository.existsByCode(code)
+        val isExisted = airportRepository.existsByCodeAndStatus(code, AirportStatus.WORKING)
         if (isExisted) {
             throw AirportException("AirportCodeExisted", "Airport code is existed!")
         }
     }
 
     fun isNameAirportExisted(name: String) {
-        val isExisted = airportRepository.existsByName(name)
+        val isExisted = airportRepository.existsByNameAndStatus(name, AirportStatus.WORKING)
         if (isExisted) {
             throw AirportException("AirportNameExisted", "Airport name is existed!")
         }

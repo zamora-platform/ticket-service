@@ -2,6 +2,7 @@ package com.revotech.business.country.repository
 
 import com.revotech.business.country.dto.CountryProjection
 import com.revotech.business.country.entity.Country
+import com.revotech.business.country.entity.CountryStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -22,8 +23,8 @@ interface CountryRepository : JpaRepository<Country, String> {
         @Param("id") id: String
     ): Country?
 
-    fun existsByCode(code: String): Boolean
-    fun existsByName(code: String): Boolean
+    fun existsByCodeAndStatus(code: String, status: CountryStatus): Boolean
+    fun existsByNameAndStatus(code: String, status: CountryStatus): Boolean
 
     @Query(
         """
@@ -38,8 +39,8 @@ interface CountryRepository : JpaRepository<Country, String> {
             FROM t_country c
             WHERE (:textSearch IS NULL OR
                    LOWER(c.code) LIKE LOWER(CONCAT('%', :textSearch, '%')) OR
-                   LOWER(c.name) LIKE LOWER(CONCAT('%', :textSearch, '%'))
-            AND c.status = 'ACTIVE')
+                   LOWER(c.name) LIKE LOWER(CONCAT('%', :textSearch, '%')))
+            AND c.status = 'ACTIVE'
             ORDER BY c.is_default DESC, c.sort_order ASC, c.created_time DESC
         """, nativeQuery = true
     )

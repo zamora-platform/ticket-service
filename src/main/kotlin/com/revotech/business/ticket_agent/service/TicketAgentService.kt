@@ -153,35 +153,35 @@ class TicketAgentService(
     }
 
     fun isCodeTicketAgentExisted(code: String) {
-        val isExisted = ticketAgentRepository.existsByCode(code)
+        val isExisted = ticketAgentRepository.existsByCodeAndStatus(code, TicketAgentStatus.WORKING)
         if (isExisted) {
             throw TicketAgentException("TicketAgentCodeExist", "Ticket agent code is existed!")
         }
     }
 
     fun isNameTicketAgentExisted(name: String) {
-        val isExisted = ticketAgentRepository.existsByName(name)
+        val isExisted = ticketAgentRepository.existsByNameAndStatus(name, TicketAgentStatus.WORKING)
         if (isExisted) {
             throw TicketAgentException("TicketAgentNameExist", "Ticket agent name is existed!")
         }
     }
 
     fun isTaxCodeTicketAgentExisted(taxCode: String) {
-        val isExisted = ticketAgentRepository.existsByTaxCode(taxCode)
+        val isExisted = ticketAgentRepository.existsByTaxCodeAndStatus(taxCode, TicketAgentStatus.WORKING)
         if (isExisted) {
             throw TicketAgentException("TicketAgentTaxCodeExist", "Ticket agent tax code is existed!")
         }
     }
 
     fun isPhoneTicketAgentExisted(taxCode: String) {
-        val isExisted = ticketAgentRepository.existsByPhone(taxCode)
+        val isExisted = ticketAgentRepository.existsByPhoneAndStatus(taxCode, TicketAgentStatus.WORKING)
         if (isExisted) {
             throw TicketAgentException("TicketAgentPhoneExist", "Ticket agent phone is existed!")
         }
     }
 
     fun isEmailTicketAgentExisted(email: String) {
-        val isExisted = ticketAgentRepository.existsByEmail(email)
+        val isExisted = ticketAgentRepository.existsByEmailAndStatus(email, TicketAgentStatus.WORKING)
         if (isExisted) {
             throw TicketAgentException("TicketAgentEmailExist", "Ticket agent email is existed!")
         }

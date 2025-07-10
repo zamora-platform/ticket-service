@@ -1,5 +1,7 @@
 package com.revotech.business.country.service
 
+import com.revotech.business.airport.entity.AirportStatus
+import com.revotech.business.airport.repository.AirportRepository
 import com.revotech.business.country.dto.*
 import com.revotech.business.country.entity.City
 import com.revotech.business.country.entity.CityStatus
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 class CountryService(
     private val countryRepository: CountryRepository,
     private val cityRepository: CityRepository,
+    private val airportRepository: AirportRepository,
     private val webUtil: WebUtil
 ) {
     @Transactional
@@ -90,14 +93,14 @@ class CountryService(
     }
 
     fun isCodeExisted(code: String) {
-        val isExisted = countryRepository.existsByCode(code)
+        val isExisted = countryRepository.existsByCodeAndStatus(code, CountryStatus.ACTIVE)
         if (isExisted) {
             throw CountryException("CountryCodeExist", "Country code is existed!")
         }
     }
 
     fun isNameExisted(code: String) {
-        val isExisted = countryRepository.existsByName(code)
+        val isExisted = countryRepository.existsByNameAndStatus(code, CountryStatus.ACTIVE)
         if (isExisted) {
             throw CountryException("CountryNameExist", "Country name is existed!")
         }
@@ -216,8 +219,19 @@ class CountryService(
 
         val currentCountry = findCountryById(id)
 
+        val isUsedByAirport = airportRepository.findByCountryIdAndStatus(
+            currentCountry?.id!!, AirportStatus.WORKING
+        )
+
+        if (isUsedByAirport != null) {
+            throw CountryException(
+                "CountryInUseByAirport",
+                "Cannot delete country '${currentCountry.name}' because it is being used by the airport '${isUsedByAirport.name}'"
+            )
+        }
+
         cityRepository.softDeleteCityByCountryId(
-            listOf(currentCountry?.id!!)
+            listOf(currentCountry.id!!)
         )
 
         countryRepository.save(
