@@ -66,6 +66,10 @@ class AirlineService(
 
         // UPLOAD LOGO FILE
         saveAirlineReq.logoFile?.let { file ->
+
+            val airlineId = newAirline?.id ?: currentAirlineToUpdate?.id
+                ?: throw IllegalStateException("Airline ID không xác định")
+
             // CASE HAS ID
             if (!file.id.isNullOrBlank()) {
                 val oldAirlineLogoFile = ticketAttachmentService.findLogoAirlineFileById(file.id!!)
@@ -74,14 +78,14 @@ class AirlineService(
                     if (file.file != null) {
                         ticketAttachmentRepository.delete(oldAirlineLogoFile)
                         ticketAttachmentService.uploadFileToTicketAttachment(
-                            listOf(file.file!!), currentAirlineToUpdate?.id!!, AttachmentType.AIRLINE_LOGO
+                            listOf(file.file!!), airlineId, AttachmentType.AIRLINE_LOGO
                         )
                     }
                 }
             } else {
                 // CASE NO ID
                 ticketAttachmentService.uploadFileToTicketAttachment(
-                    listOf(file.file!!), newAirline?.id!!, AttachmentType.AIRLINE_LOGO
+                    listOf(file.file!!), airlineId, AttachmentType.AIRLINE_LOGO
                 )
             }
         }
