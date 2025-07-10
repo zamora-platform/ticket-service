@@ -53,17 +53,21 @@ interface AirlineRepository : JpaRepository<Airline, String> {
     ): Page<AirlineProjection>
 
     @Query("""
-        SELECT al.id           AS id,
-               al.code         AS code,
-               al.name         AS name,
-               al.type         AS type,
-               al.sort_order   AS sortOrder,
-               al.status       AS status,
-               al.created_by   AS createdBy,
-               al.created_time AS createdTime
+        SELECT al.id            AS id,
+               al.code          AS code,
+               al.name          AS name,
+               am.id            AS logoFileId,
+               am.download_path AS logoFileDownloadPath,
+               al.type          AS type,
+               al.sort_order    AS sortOrder,
+               al.status        AS status,
+               al.created_by    AS createdBy,
+               al.created_time  AS createdTime
         FROM t_airline al
+        LEFT JOIN t_attachment am ON al.id = am.object_id
         WHERE al.id = :id
         AND al.status = 'WORKING'
+        AND am.object_type = 'AIRLINE_LOGO'
     """, nativeQuery = true)
     fun getDetailAirlineById(
         @Param("id") id: String

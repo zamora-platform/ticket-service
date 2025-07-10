@@ -1,15 +1,21 @@
 package com.revotech.business.airline.dto
 
 import com.revotech.business.airline.entity.AirlineType
-import com.revotech.business.airport.dto.Airport
+import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 
 data class SaveAirlineReq(
     var id: String? = null,
     var code: String? = null,
     var name: String? = null,
+    var logoFile: AirlineLogoAttachment? = null,
     var type: AirlineType? = null,
     var sortOrder: Int? = null,
+)
+
+data class AirlineLogoAttachment(
+    var id: String? = null,
+    var file: MultipartFile? = null
 )
 
 data class AirlineList(
@@ -27,11 +33,17 @@ data class AirlineDetail(
     var id: String? = null,
     var code: String? = null,
     var name: String? = null,
+    var logoFile: AirlineLogoDetailAttachment? = null,
     var type: String? = null,
     var sortOrder: Int? = null,
     var status: String? = null,
     var createdBy: String? = null,
     var createdTime: LocalDateTime? = null
+)
+
+data class AirlineLogoDetailAttachment(
+    var id: String? = null,
+    var downloadPath: String? = null
 )
 
 data class SearchInput(
@@ -50,6 +62,8 @@ interface AirlineProjection {
     fun getId(): String
     fun getCode(): String
     fun getName(): String
+    fun getLogoFileId(): String
+    fun getLogoFileDownloadPath(): String
     fun getType(): String
     fun getSortOrder(): Int
     fun getStatus(): String

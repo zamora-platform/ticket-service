@@ -8,11 +8,6 @@ import com.revotech.business.airline.service.AirlineService
 @DgsComponent
 class AirlineMutation(private val airlineService: AirlineService) {
     @DgsMutation
-    fun saveAirline(saveAirlineReq: SaveAirlineReq): Boolean {
-        return airlineService.saveAirline(saveAirlineReq)
-    }
-
-    @DgsMutation
     fun deleteAirline(id: String): Boolean {
         return airlineService.deleteAirline(id)
     }

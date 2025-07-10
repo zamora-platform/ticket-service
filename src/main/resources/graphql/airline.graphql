@@ -1,5 +1,4 @@
 extend type Mutation {
-    saveAirline(saveAirlineReq: SaveAirlineReq): Boolean
     deleteAirline(id: String): Boolean
 }
 
@@ -7,14 +6,6 @@ extend type Query {
     getNextAirlineSortOrder: Int
     searchAirline(searchInput: SearchInput, pageable: Pageable): SearchAirlineResult
     getDetailAirlineById(id: String): AirlineDetail
-}
-
-input SaveAirlineReq {
-    id: String
-    code: String
-    name: String
-    type: AirlineType
-    sortOrder: Int
 }
 
 enum AirlineType {
@@ -46,9 +37,15 @@ type AirlineDetail {
     id: String
     code: String
     name: String
+    logoFile: AirlineLogoDetailAttachment
     type: String
     sortOrder: Int
     status: String
     createdBy: String
     createdTime: DateTime
+}
+
+type AirlineLogoDetailAttachment {
+    id: String
+    downloadPath: String
 }

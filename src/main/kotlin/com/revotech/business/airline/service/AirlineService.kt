@@ -1,15 +1,15 @@
 package com.revotech.business.airline.service
 
-import com.revotech.business.airline.dto.AirlineDetail
-import com.revotech.business.airline.dto.AirlineList
-import com.revotech.business.airline.dto.SaveAirlineReq
-import com.revotech.business.airline.dto.SearchAirlineResult
+import com.revotech.business.airline.dto.*
 import com.revotech.business.airline.entity.Airline
 import com.revotech.business.airline.entity.AirlineStatus
 import com.revotech.business.airline.exception.AirlineException
 import com.revotech.business.airline.repository.AirlineRepository
 import com.revotech.business.airport.dto.SearchInput
 import com.revotech.business.airport.exception.AirportException
+import com.revotech.business.attachment.entity.AttachmentType
+import com.revotech.business.attachment.repository.TicketAttachmentRepository
+import com.revotech.business.attachment.service.TicketAttachmentService
 import com.revotech.util.WebUtil
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -17,11 +17,15 @@ import org.springframework.stereotype.Service
 @Service
 class AirlineService(
     private val airlineRepository: AirlineRepository,
-    private val webUtil: WebUtil
+    private val ticketAttachmentRepository: TicketAttachmentRepository,
+    private val webUtil: WebUtil,
+    private val ticketAttachmentService: TicketAttachmentService
 ) {
     fun saveAirline(saveAirlineReq: SaveAirlineReq): Boolean {
 
         val userId = webUtil.getUserId()
+        var newAirline: Airline? = null
+        var currentAirlineToUpdate: Airline? = null
 
         if (saveAirlineReq.id == null) {
             // CREATE
@@ -30,7 +34,7 @@ class AirlineService(
                 isCreate = true,
                 currentAirlineToUpdate = null
             )
-            airlineRepository.save(
+            newAirline = airlineRepository.save(
                 Airline(
                     code = saveAirlineReq.code,
                     name = saveAirlineReq.name,
@@ -43,7 +47,7 @@ class AirlineService(
             )
         } else {
             // UPDATE
-            val currentAirlineToUpdate = findAirlineById(saveAirlineReq.id!!)
+            currentAirlineToUpdate = findAirlineById(saveAirlineReq.id!!)
             validate(
                 saveAirlineReq = saveAirlineReq,
                 isCreate = false,
@@ -60,6 +64,27 @@ class AirlineService(
             )
         }
 
+        // UPLOAD LOGO FILE
+        saveAirlineReq.logoFile?.let { file ->
+            // CASE HAS ID
+            if (!file.id.isNullOrBlank()) {
+                val oldAirlineLogoFile = ticketAttachmentService.findLogoAirlineFileById(file.id!!)
+                oldAirlineLogoFile.lastModifiedBy = userId
+                ticketAttachmentRepository.save(oldAirlineLogoFile).also {
+                    if (file.file != null) {
+                        ticketAttachmentRepository.delete(oldAirlineLogoFile)
+                        ticketAttachmentService.uploadFileToTicketAttachment(
+                            listOf(file.file!!), currentAirlineToUpdate?.id!!, AttachmentType.AIRLINE_LOGO
+                        )
+                    }
+                }
+            } else {
+                // CASE NO ID
+                ticketAttachmentService.uploadFileToTicketAttachment(
+                    listOf(file.file!!), newAirline?.id!!, AttachmentType.AIRLINE_LOGO
+                )
+            }
+        }
         return true
     }
 
@@ -144,6 +169,10 @@ class AirlineService(
             id = airlineDetail.getId(),
             code = airlineDetail.getCode(),
             name = airlineDetail.getName(),
+            logoFile = AirlineLogoDetailAttachment(
+                id = airlineDetail.getLogoFileId(),
+                downloadPath = airlineDetail.getLogoFileDownloadPath()
+            ),
             type = airlineDetail.getType(),
             sortOrder = airlineDetail.getSortOrder(),
             status = airlineDetail.getStatus(),
