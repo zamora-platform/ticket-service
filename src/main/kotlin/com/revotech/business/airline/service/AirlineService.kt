@@ -151,4 +151,17 @@ class AirlineService(
             createdTime = airlineDetail.getCreatedTime()
         )
     }
+
+    fun deleteAirline(id: String): Boolean {
+
+        val currentAirline = findAirlineById(id)
+
+        currentAirline.apply {
+            status = AirlineStatus.NOT_WORKING
+        }
+
+        airlineRepository.save(currentAirline)
+
+        return true
+    }
 }

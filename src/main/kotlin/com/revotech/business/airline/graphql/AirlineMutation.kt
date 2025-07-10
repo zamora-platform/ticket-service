@@ -11,4 +11,9 @@ class AirlineMutation(private val airlineService: AirlineService) {
     fun saveAirline(saveAirlineReq: SaveAirlineReq): Boolean {
         return airlineService.saveAirline(saveAirlineReq)
     }
+
+    @DgsMutation
+    fun deleteAirline(id: String): Boolean {
+        return airlineService.deleteAirline(id)
+    }
 }
