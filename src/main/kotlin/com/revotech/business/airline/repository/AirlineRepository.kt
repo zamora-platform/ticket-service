@@ -64,10 +64,9 @@ interface AirlineRepository : JpaRepository<Airline, String> {
                al.created_by    AS createdBy,
                al.created_time  AS createdTime
         FROM t_airline al
-        LEFT JOIN t_attachment am ON al.id = am.object_id
+        LEFT JOIN t_attachment am ON al.id = am.object_id AND am.object_type = 'AIRLINE_LOGO'
         WHERE al.id = :id
         AND al.status = 'WORKING'
-        AND am.object_type = 'AIRLINE_LOGO'
     """, nativeQuery = true)
     fun getDetailAirlineById(
         @Param("id") id: String
