@@ -33,4 +33,19 @@ interface WorkContentRepository : JpaRepository<WorkContent, String> {
         @Param("textSearch") textSearch: String?,
         pageable: Pageable
     ): Page<WorkContentProjection>
+
+    @Query("""
+        SELECT wc.id                       AS id,
+               wc.code                     AS code,
+               wc.content                  AS content,
+               wc.time_from                AS timeFrom,
+               wc.time_to                  AS timeTo,
+               wc.open_ticket_registration AS openTicketRegistration
+        FROM t_work_content wc
+        WHERE wc.id = :id
+        AND wc.is_deleted = false
+    """, nativeQuery = true)
+    fun getDetailWorkContentById(
+        @Param("id") id: String
+    ): WorkContentProjection?
 }

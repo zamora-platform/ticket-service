@@ -1,9 +1,6 @@
 package com.revotech.business.work_content.service
 
-import com.revotech.business.work_content.dto.SaveWorkContentReq
-import com.revotech.business.work_content.dto.SearchInput
-import com.revotech.business.work_content.dto.SearchWorkContentResult
-import com.revotech.business.work_content.dto.WorkContentList
+import com.revotech.business.work_content.dto.*
 import com.revotech.business.work_content.entity.WorkContent
 import com.revotech.business.work_content.exception.WorkContentException
 import com.revotech.business.work_content.repository.WorkContentRepository
@@ -148,5 +145,31 @@ class WorkContentService(
             totalRecords = listWorkContent.totalElements.toInt(),
             totalPages = listWorkContent.totalPages
         )
+    }
+
+    fun getDetailWorkContentById(id: String): WorkContentDetail {
+
+        val workContentDetail = workContentRepository.getDetailWorkContentById(id)
+            ?: throw WorkContentException("WorkContentNotFound", "Work content not found!")
+
+        return WorkContentDetail(
+            id = workContentDetail.getId(),
+            code = workContentDetail.getCode(),
+            content = workContentDetail.getContent(),
+            timeFrom = workContentDetail.getTimeFrom().toString(),
+            timeTo = workContentDetail.getTimeTo().toString(),
+            openTicketRegistration = workContentDetail.getOpenTicketRegistration()
+        )
+    }
+
+    fun deleteWorkContent(id: String): Boolean {
+
+        val currentWorkContent = findWorkContentById(id)
+
+        currentWorkContent.isDeleted = true
+
+        workContentRepository.save(currentWorkContent)
+
+        return true
     }
 }

@@ -4,6 +4,7 @@ import com.netflix.graphql.dgs.DgsComponent
 import com.netflix.graphql.dgs.DgsQuery
 import com.revotech.business.work_content.dto.SearchInput
 import com.revotech.business.work_content.dto.SearchWorkContentResult
+import com.revotech.business.work_content.dto.WorkContentDetail
 import com.revotech.business.work_content.service.WorkContentService
 import com.revotech.graphql.GraphqlUtil
 import com.revotech.graphql.type.CustomPageable
@@ -15,5 +16,10 @@ class WorkContentQuery(private val workContentService: WorkContentService) {
         val adjustedPageable = pageable.copy(page = (pageable.page ?: 1).coerceAtLeast(1) - 1)
         val page = GraphqlUtil.toPageable(adjustedPageable)
         return workContentService.searchWorkContent(searchInput, page)
+    }
+
+    @DgsQuery
+    fun getDetailWorkContentById(id: String): WorkContentDetail {
+        return workContentService.getDetailWorkContentById(id)
     }
 }
