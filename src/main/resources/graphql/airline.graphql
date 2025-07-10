@@ -4,6 +4,8 @@ extend type Mutation {
 
 extend type Query {
     getNextAirlineSortOrder: Int
+    searchAirline(searchInput: SearchInput, pageable: Pageable): SearchAirlineResult
+    getDetailAirlineById(id: String): AirlineDetail
 }
 
 input SaveAirlineReq {
@@ -18,4 +20,34 @@ enum AirlineType {
     INTERNATIONAL,
     DOMESTIC,
     OTHER
+}
+
+type AirlineList {
+    id: String
+    code: String
+    name: String
+    type: String
+    sortOrder: Int
+    status: String
+    createdBy: String
+    createdTime: DateTime
+}
+
+type SearchAirlineResult {
+    content: [AirlineList]
+    page: Int!
+    pageSize: Int!
+    totalRecords: Int!
+    totalPages: Int!
+}
+
+type AirlineDetail {
+    id: String
+    code: String
+    name: String
+    type: String
+    sortOrder: Int
+    status: String
+    createdBy: String
+    createdTime: DateTime
 }

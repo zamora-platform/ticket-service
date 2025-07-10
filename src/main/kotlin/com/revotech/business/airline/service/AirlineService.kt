@@ -1,12 +1,17 @@
 package com.revotech.business.airline.service
 
+import com.revotech.business.airline.dto.AirlineDetail
+import com.revotech.business.airline.dto.AirlineList
 import com.revotech.business.airline.dto.SaveAirlineReq
+import com.revotech.business.airline.dto.SearchAirlineResult
 import com.revotech.business.airline.entity.Airline
 import com.revotech.business.airline.entity.AirlineStatus
 import com.revotech.business.airline.exception.AirlineException
 import com.revotech.business.airline.repository.AirlineRepository
+import com.revotech.business.airport.dto.SearchInput
 import com.revotech.business.airport.exception.AirportException
 import com.revotech.util.WebUtil
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -104,5 +109,46 @@ class AirlineService(
 
     fun getNextAirlineSortOrder(): Int {
         return airlineRepository.getNextAirlineSortOrder()
+    }
+
+    fun searchAirline(searchInput: SearchInput, pageable: Pageable): SearchAirlineResult {
+
+        val airlineListSearch = airlineRepository.searchAirline(searchInput.textSearch, pageable)
+
+        val mappedAirlineList = airlineListSearch.content.map { item ->
+            AirlineList(
+                id = item.getId(),
+                code = item.getCode(),
+                name = item.getName(),
+                type = item.getType(),
+                sortOrder = item.getSortOrder(),
+                status = item.getStatus(),
+                createdBy = item.getCreatedBy(),
+                createdTime = item.getCreatedTime()
+            )
+        }
+
+        return SearchAirlineResult(
+            content = mappedAirlineList,
+            page = airlineListSearch.number + 1,
+            pageSize = airlineListSearch.size,
+            totalRecords = airlineListSearch.totalElements.toInt(),
+            totalPages = airlineListSearch.totalPages
+        )
+    }
+
+    fun getDetailAirlineById(id: String): AirlineDetail {
+        val airlineDetail = airlineRepository.getDetailAirlineById(id)
+            ?: throw AirlineException("AirlineNotFound", "Airline not found!")
+        return AirlineDetail(
+            id = airlineDetail.getId(),
+            code = airlineDetail.getCode(),
+            name = airlineDetail.getName(),
+            type = airlineDetail.getType(),
+            sortOrder = airlineDetail.getSortOrder(),
+            status = airlineDetail.getStatus(),
+            createdBy = airlineDetail.getCreatedBy(),
+            createdTime = airlineDetail.getCreatedTime()
+        )
     }
 }

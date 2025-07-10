@@ -1,7 +1,11 @@
 package com.revotech.business.airline.repository
 
+import com.revotech.business.airline.dto.AirlineProjection
 import com.revotech.business.airline.entity.Airline
 import com.revotech.business.airline.entity.AirlineStatus
+import com.revotech.business.airport.dto.AirportProjection
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -26,4 +30,42 @@ interface AirlineRepository : JpaRepository<Airline, String> {
         """, nativeQuery = true
     )
     fun getNextAirlineSortOrder(): Int
+
+    @Query("""
+        SELECT al.id           AS id,
+               al.code         AS code,
+               al.name         AS name,
+               al.type         AS type,
+               al.sort_order   AS sortOrder,
+               al.status       AS status,
+               al.created_by   AS createdBy,
+               al.created_time AS createdTime
+        FROM t_airline al
+        WHERE (:textSearch IS NULL OR
+               LOWER(al.code) LIKE LOWER(CONCAT('%', :textSearch, '%')) OR
+               LOWER(al.name) LIKE LOWER(CONCAT('%', :textSearch, '%')))
+        AND al.status = 'WORKING'
+        ORDER BY al.sort_order ASC, al.created_time DESC
+    """, nativeQuery = true)
+    fun searchAirline(
+        @Param("textSearch") textSearch: String?,
+        pageable: Pageable
+    ): Page<AirlineProjection>
+
+    @Query("""
+        SELECT al.id           AS id,
+               al.code         AS code,
+               al.name         AS name,
+               al.type         AS type,
+               al.sort_order   AS sortOrder,
+               al.status       AS status,
+               al.created_by   AS createdBy,
+               al.created_time AS createdTime
+        FROM t_airline al
+        WHERE al.id = :id
+        AND al.status = 'WORKING'
+    """, nativeQuery = true)
+    fun getDetailAirlineById(
+        @Param("id") id: String
+    ): AirlineProjection?
 }
