@@ -1,6 +1,8 @@
 package com.revotech.business.work_content.dto
 
+import org.springframework.data.annotation.CreatedBy
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class SaveWorkContentReq(
     var id: String? = null,
@@ -21,7 +23,9 @@ data class WorkContentList(
     var content: String? = null,
     var timeFrom: String? = null,
     var timeTo: String? = null,
-    var openTicketRegistration: Boolean? = null
+    var openTicketRegistration: Boolean? = null,
+    var createdBy: String? = null,
+    var createdTime: LocalDateTime? = null
 )
 
 data class SearchWorkContentResult(

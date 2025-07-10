@@ -24,6 +24,8 @@ type WorkContentList {
     timeFrom: String
     timeTo: String
     openTicketRegistration: Boolean
+    createdBy: String
+    createdTime: DateTime
 }
 
 type SearchWorkContentResult {

@@ -22,7 +22,9 @@ interface WorkContentRepository : JpaRepository<WorkContent, String> {
                wc.content                  AS content,
                wc.time_from                AS timeFrom,
                wc.time_to                  AS timeTo,
-               wc.open_ticket_registration AS openTicketRegistration
+               wc.open_ticket_registration AS openTicketRegistration,
+               wc.created_by               AS createdBy,
+               wc.created_time             AS createdTime
         FROM t_work_content wc
         WHERE (:textSearch IS NULL OR
                LOWER(wc.code) LIKE LOWER(CONCAT('%', :textSearch, '%')))
