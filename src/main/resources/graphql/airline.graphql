@@ -1,0 +1,21 @@
+extend type Mutation {
+    saveAirline(saveAirlineReq: SaveAirlineReq): Boolean
+}
+
+extend type Query {
+    getNextAirlineSortOrder: Int
+}
+
+input SaveAirlineReq {
+    id: String
+    code: String
+    name: String
+    type: AirlineType
+    sortOrder: Int
+}
+
+enum AirlineType {
+    INTERNATIONAL,
+    DOMESTIC,
+    OTHER
+}
