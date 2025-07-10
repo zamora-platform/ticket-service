@@ -1,14 +1,16 @@
 package com.revotech.business.work_content.service
 
 import com.revotech.business.work_content.dto.SaveWorkContentReq
+import com.revotech.business.work_content.dto.SearchInput
+import com.revotech.business.work_content.dto.SearchWorkContentResult
+import com.revotech.business.work_content.dto.WorkContentList
 import com.revotech.business.work_content.entity.WorkContent
 import com.revotech.business.work_content.exception.WorkContentException
 import com.revotech.business.work_content.repository.WorkContentRepository
 import com.revotech.util.WebUtil
-import org.springframework.cglib.core.Local
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
@@ -100,7 +102,6 @@ class WorkContentService(
         }
     }
 
-
     fun isValidDateFormat(value: String?): Boolean {
         return try {
             value?.let {
@@ -122,5 +123,30 @@ class WorkContentService(
     fun findWorkContentById(id: String): WorkContent {
         return workContentRepository.findByIdAndIsDeletedFalse(id)
             ?: throw WorkContentException("WorkContentNotFound", "Work content not found!")
+    }
+
+    fun searchWorkContent(searchInput: SearchInput, pageable: Pageable): SearchWorkContentResult {
+        val listWorkContent = workContentRepository.searchWorkContent(
+            searchInput.textSearch, pageable
+        )
+
+        val mappedListWorkContent = listWorkContent.content.map { item ->
+            WorkContentList(
+                id = item.getId(),
+                code = item.getCode(),
+                content = item.getContent(),
+                timeFrom = item.getTimeFrom().toString(),
+                timeTo = item.getTimeTo().toString(),
+                openTicketRegistration = item.getOpenTicketRegistration()
+            )
+        }
+
+        return SearchWorkContentResult(
+            content = mappedListWorkContent,
+            page = listWorkContent.number + 1,
+            pageSize = listWorkContent.size,
+            totalRecords = listWorkContent.totalElements.toInt(),
+            totalPages = listWorkContent.totalPages
+        )
     }
 }

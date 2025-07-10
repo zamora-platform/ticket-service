@@ -2,6 +2,10 @@ extend type Mutation {
     saveWorkContent(saveWorkContentReq: SaveWorkContentReq): Boolean
 }
 
+extend type Query {
+    searchWorkContent(searchInput: SearchInput, pageable: Pageable): SearchWorkContentResult
+}
+
 input SaveWorkContentReq {
     id: String
     code: String
@@ -9,4 +13,21 @@ input SaveWorkContentReq {
     timeFrom: String
     timeTo: String
     openTicketRegistration: Boolean
+}
+
+type WorkContentList {
+    id: String
+    code: String
+    content: String
+    timeFrom: String
+    timeTo: String
+    openTicketRegistration: Boolean
+}
+
+type SearchWorkContentResult {
+    content: [WorkContentList]
+    page: Int!
+    pageSize: Int!
+    totalRecords: Int!
+    totalPages: Int!
 }
