@@ -1,0 +1,12 @@
+extend type Mutation {
+    saveWorkContent(saveWorkContentReq: SaveWorkContentReq): Boolean
+}
+
+input SaveWorkContentReq {
+    id: String
+    code: String
+    content: String
+    timeFrom: String
+    timeTo: String
+    openTicketRegistration: Boolean
+}
