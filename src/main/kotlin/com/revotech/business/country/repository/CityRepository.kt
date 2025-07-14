@@ -39,4 +39,15 @@ interface CityRepository : JpaRepository<City, String> {
     ): Int
 
     fun findCityById(id: String): City?
+
+    @Query(
+        """
+            SELECT c.id         AS cityId,
+                   c.name       AS cityName,
+                   c.country_id AS countryId
+            FROM t_city c
+            WHERE c.status = 'ACTIVE'
+        """, nativeQuery = true
+    )
+    fun findAllCities(): List<CityListProjection>
 }

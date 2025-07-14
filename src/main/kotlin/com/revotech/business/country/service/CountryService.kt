@@ -289,4 +289,14 @@ class CountryService(
             )
         }
     }
+
+    fun getAllCity(): List<ListCity> {
+        val allCity = cityRepository.findAllCities()
+        return allCity.map { item ->
+            ListCity(
+                cityId = item.getCityId(),
+                cityName = item.getCityName()
+            )
+        }
+    }
 }
