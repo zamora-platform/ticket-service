@@ -6,6 +6,7 @@ extend type Query {
     getNextAirlineSortOrder: Int
     searchAirline(searchInput: SearchInput, pageable: Pageable): SearchAirlineResult
     getDetailAirlineById(id: String): AirlineDetail
+    getAllAirline: [AirlineList]
 }
 
 enum AirlineType {

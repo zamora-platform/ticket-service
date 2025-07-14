@@ -71,4 +71,19 @@ interface AirlineRepository : JpaRepository<Airline, String> {
     fun getDetailAirlineById(
         @Param("id") id: String
     ): AirlineProjection?
+
+    @Query("""
+        SELECT al.id           AS id,
+               al.code         AS code,
+               al.name         AS name,
+               al.type         AS type,
+               al.sort_order   AS sortOrder,
+               al.status       AS status,
+               al.created_by   AS createdBy,
+               al.created_time AS createdTime
+        FROM t_airline al
+        WHERE al.status = 'WORKING'
+        ORDER BY al.sort_order ASC, al.created_time DESC
+    """, nativeQuery = true)
+    fun getAllAirline(): List<AirlineProjection>
 }

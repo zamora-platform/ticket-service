@@ -197,4 +197,20 @@ class AirlineService(
 
         return true
     }
+
+    fun getAllAirline(): List<AirlineList> {
+        val allAirline = airlineRepository.getAllAirline()
+        return allAirline.map { item ->
+            AirlineList(
+                id = item.getId(),
+                code = item.getCode(),
+                name = item.getName(),
+                type = item.getType(),
+                sortOrder = item.getSortOrder(),
+                status = item.getStatus(),
+                createdBy = item.getCreatedBy(),
+                createdTime = item.getCreatedTime()
+            )
+        }
+    }
 }
