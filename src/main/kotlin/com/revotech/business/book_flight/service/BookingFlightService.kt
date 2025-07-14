@@ -1,16 +1,293 @@
 package com.revotech.business.book_flight.service
 
+import com.revotech.business.airline.service.AirlineService
+import com.revotech.business.airport.service.AirportService
+import com.revotech.business.attachment.entity.AttachmentType
+import com.revotech.business.attachment.repository.TicketAttachmentRepository
 import com.revotech.business.attachment.service.TicketAttachmentService
+import com.revotech.business.book_flight.dto.SaveBookingFlightReq
+import com.revotech.business.book_flight.entity.BookingFlight
+import com.revotech.business.book_flight.entity.BookingFlightAttachment
+import com.revotech.business.book_flight.exception.BookingFlightException
+import com.revotech.business.book_flight.exception.BookingFlightNotFoundException
 import com.revotech.business.book_flight.repository.BookingFlightAttachmentRepository
 import com.revotech.business.book_flight.repository.BookingFlightRepository
+import com.revotech.business.country.service.CountryService
+import com.revotech.business.work_content.service.WorkContentService
+import com.revotech.client.AdminServiceClient
 import com.revotech.util.WebUtil
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 @Service
 class BookingFlightService(
     private val bookingFlightRepository: BookingFlightRepository,
     private val bookingFlightAttachmentRepository: BookingFlightAttachmentRepository,
+    private val ticketAttachmentRepository: TicketAttachmentRepository,
     private val ticketAttachmentService: TicketAttachmentService,
+    private val workContentService: WorkContentService,
+    private val countryService: CountryService,
+    private val airportService: AirportService,
+    private val airlineService: AirlineService,
+    private val adminServiceClient: AdminServiceClient,
     private val webUtil: WebUtil
 ) {
+
+    @Transactional
+    fun saveBookingFlight(saveBookingFlightReq: SaveBookingFlightReq): Boolean {
+
+        val userId = webUtil.getUserId()
+        var newBookingFlight: BookingFlight? = null
+        var currentBookingFlightToUpdate: BookingFlight? = null
+
+        if (saveBookingFlightReq.id.isNullOrEmpty()) {
+            // CREATE
+            validate(
+                req = saveBookingFlightReq,
+                isCreate = true,
+                currentBookingFlightToUpdate = null
+            )
+            newBookingFlight = bookingFlightRepository.save(
+                BookingFlight(
+                    requestNumber = saveBookingFlightReq.requestNumber,
+                    officerId = saveBookingFlightReq.officerId,
+                    goldenLotusCode = saveBookingFlightReq.goldenLotusCode,
+                    workContentId = saveBookingFlightReq.workContentId,
+                    flightType = saveBookingFlightReq.flightType,
+                    cityId = saveBookingFlightReq.cityId,
+                    flightDate = LocalDate.parse(saveBookingFlightReq.flightDate),
+                    departureAirportId = saveBookingFlightReq.departureAirportId,
+                    airportToDepartureId = saveBookingFlightReq.airportToDepartureId,
+                    returnFlightDate = LocalDate.parse(saveBookingFlightReq.returnFlightDate),
+                    airportDepartureReturnId = saveBookingFlightReq.airportDepartureReturnId,
+                    airportToReturnId = saveBookingFlightReq.airportToReturnId,
+                    requestType = saveBookingFlightReq.requestType,
+                    departureTime = LocalTime.parse(saveBookingFlightReq.departureTime),
+                    outboundFlightNumber = saveBookingFlightReq.outboundFlightNumber,
+                    airlineDepartureId = saveBookingFlightReq.airlineDepartureId,
+                    returnFlightTime = LocalTime.parse(saveBookingFlightReq.returnFlightTime),
+                    returnFlightNumber = saveBookingFlightReq.returnFlightNumber,
+                    airlineReturnId = saveBookingFlightReq.airlineReturnId,
+                    flightScheduleDescription = saveBookingFlightReq.flightScheduleDescription,
+                    isDeleted = false
+                ).apply {
+                    createdBy = userId
+                    createdTime = parseLocalDateTimeWithDefaultTime(saveBookingFlightReq.createdDate!!)
+                }
+            )
+        } else {
+            // UPDATE
+            currentBookingFlightToUpdate = findBookingFlightById(saveBookingFlightReq.id!!)
+            validate(
+                req = saveBookingFlightReq,
+                isCreate = false,
+                currentBookingFlightToUpdate = currentBookingFlightToUpdate
+            )
+            bookingFlightRepository.save(
+                currentBookingFlightToUpdate.apply {
+                    requestNumber = saveBookingFlightReq.requestNumber
+                    officerId = saveBookingFlightReq.officerId
+                    goldenLotusCode = saveBookingFlightReq.goldenLotusCode
+                    workContentId = saveBookingFlightReq.workContentId
+                    flightType = saveBookingFlightReq.flightType
+                    cityId = saveBookingFlightReq.cityId
+                    flightDate = LocalDate.parse(saveBookingFlightReq.flightDate)
+                    departureAirportId = saveBookingFlightReq.departureAirportId
+                    airportToDepartureId = saveBookingFlightReq.airportToDepartureId
+                    returnFlightDate = LocalDate.parse(saveBookingFlightReq.returnFlightDate)
+                    airportDepartureReturnId = saveBookingFlightReq.airportDepartureReturnId
+                    airportToReturnId = saveBookingFlightReq.airportToReturnId
+                    requestType = saveBookingFlightReq.requestType
+                    departureTime = LocalTime.parse(saveBookingFlightReq.departureTime)
+                    outboundFlightNumber = saveBookingFlightReq.outboundFlightNumber
+                    airlineDepartureId = saveBookingFlightReq.airlineDepartureId
+                    returnFlightTime = LocalTime.parse(saveBookingFlightReq.returnFlightTime)
+                    returnFlightNumber = saveBookingFlightReq.returnFlightNumber
+                    airlineReturnId = saveBookingFlightReq.airlineReturnId
+                    flightScheduleDescription = saveBookingFlightReq.flightScheduleDescription
+                }
+            )
+        }
+
+        val bookingFlightId = newBookingFlight?.id ?: currentBookingFlightToUpdate?.id
+        ?: throw IllegalStateException("ID Booking undefined!")
+
+        // UPLOAD FILES
+        saveBookingFlightReq.files?.forEach { file ->
+            if (!file.id.isNullOrBlank()) {
+                val existingAttachment = bookingFlightAttachmentRepository.findById(file.id!!)
+                    ?: throw BookingFlightNotFoundException("BookingFlightAttachmentNotFound", "Attachment not found")
+                bookingFlightAttachmentRepository.delete(existingAttachment.get())
+                val newBookingFlightAttachmentUpdateCase = bookingFlightAttachmentRepository.save(
+                    BookingFlightAttachment(
+                        bookingFlightId = bookingFlightId,
+                        quote = file.quote,
+                        isDeleted = false
+                    )
+                )
+                if (file.attachment != null) {
+                    ticketAttachmentRepository.deleteByObjectId(existingAttachment.get().id!!)
+                    ticketAttachmentService.uploadFileToTicketAttachment(
+                        listOf(file.attachment!!), newBookingFlightAttachmentUpdateCase.id!!, AttachmentType.BOOKING
+                    )
+                }
+            } else {
+                val newBookingFlightAttachmentCreateCase = bookingFlightAttachmentRepository.save(
+                    BookingFlightAttachment(
+                        bookingFlightId = bookingFlightId,
+                        quote = file.quote,
+                        isDeleted = false
+                    )
+                )
+                ticketAttachmentService.uploadFileToTicketAttachment(
+                    listOf(file.attachment!!), newBookingFlightAttachmentCreateCase.id!!, AttachmentType.BOOKING
+                )
+            }
+        }
+
+        return true
+    }
+
+    fun findBookingFlightById(id: String): BookingFlight {
+        return bookingFlightRepository.findBookingFlightsByIdAndIsDeletedFalse(id)
+            ?: throw BookingFlightNotFoundException("BookingFlightNotFound", "Booking flight not found!")
+    }
+
+    fun validate(
+        req: SaveBookingFlightReq,
+        isCreate: Boolean,
+        currentBookingFlightToUpdate: BookingFlight?
+    ) {
+        // Số phiếu
+        if (req.requestNumber.isNullOrBlank()) {
+            throw BookingFlightException("RequestNumberRequired", "Request number is required!")
+        }
+
+        if (!isCreate) {
+            if (req.requestNumber != currentBookingFlightToUpdate?.requestNumber) {
+                existByRequestNumber(req.requestNumber!!)
+            }
+        } else {
+            existByRequestNumber(req.requestNumber!!)
+        }
+
+        // Ngày lập
+        if (req.createdDate.isNullOrBlank()) {
+            throw BookingFlightException("CreatedDateRequired", "Created date is required!")
+        } else {
+            validateDateFormat(req.createdDate!!)
+        }
+
+        // Tên cán bộ (ID)
+        if (req.officerId.isNullOrBlank()) {
+            throw BookingFlightException("OfficerRequired", "Officer is required!")
+        } else {
+            val officer = adminServiceClient.getUsersCache(webUtil.getHeaders(), listOf(req.officerId!!))
+            if (officer.isEmpty()) {
+                throw BookingFlightException("OfficerNotFound", "Officer not found!")
+            }
+        }
+
+        // Nội dung làm việc
+        if (!req.workContentId.isNullOrBlank()) {
+            workContentService.findWorkContentById(req.workContentId!!)
+        }
+
+        // Thành phố
+        if (!req.cityId.isNullOrBlank()) {
+            countryService.findCityById(req.cityId!!)
+        }
+
+        // Ngày bay đi
+        if (req.flightDate.isNullOrBlank()) {
+            throw BookingFlightException("FlightDateRequired", "Flight date is required!")
+        } else {
+            validateDateFormat(req.flightDate!!)
+        }
+
+        // Sân bay khởi hành chiều đi
+        if (req.departureAirportId.isNullOrBlank()) {
+            throw BookingFlightException("DepartureAirportRequired", "Departure airport is required!")
+        } else {
+            airportService.findAirportById(req.departureAirportId!!)
+        }
+
+        // Sân bay đến chiều đi
+        if (req.airportToDepartureId.isNullOrBlank()) {
+            throw BookingFlightException("AirportToDepartureRequired", "Airport to departure is required!")
+        } else {
+            airportService.findAirportById(req.airportToDepartureId!!)
+        }
+
+        // Ngày bay về
+        if (!req.returnFlightDate.isNullOrBlank()) {
+            validateDateFormat(req.returnFlightDate!!)
+        }
+
+        // Sân bay khởi hành chiều về
+        if (!req.airportDepartureReturnId.isNullOrBlank()) {
+            airportService.findAirportById(req.airportDepartureReturnId!!)
+        }
+
+        // Sân bay đến chiều về
+        if (!req.airportToReturnId.isNullOrBlank()) {
+            airportService.findAirportById(req.airportToReturnId!!)
+        }
+
+        // Giờ bay chiều đi
+        if (!req.departureTime.isNullOrBlank()) {
+            validateTimeFormat(req.departureTime!!)
+        }
+
+        // Hãng hàng không chiều đi
+        if (!req.airlineDepartureId.isNullOrBlank()) {
+            airlineService.findAirlineById(req.airlineDepartureId!!)
+        }
+
+        // Giờ bay chiều về
+        if (!req.returnFlightTime.isNullOrBlank()) {
+            validateTimeFormat(req.returnFlightTime!!)
+        }
+
+        // Hãng hàng không chiều về
+        if (!req.airlineReturnId.isNullOrBlank()) {
+            airlineService.findAirlineById(req.airlineReturnId!!)
+        }
+    }
+
+    fun validateDateFormat(dateStr: String, pattern: String = "yyyy-MM-dd") {
+        try {
+            val formatter = DateTimeFormatter.ofPattern(pattern)
+            LocalDate.parse(dateStr, formatter)
+        } catch (e: DateTimeParseException) {
+            throw BookingFlightException("InvalidDateFormat", "Date must match format $pattern!")
+        }
+    }
+
+    fun validateTimeFormat(timeStr: String, pattern: String = "HH:mm") {
+        try {
+            val formatter = DateTimeFormatter.ofPattern(pattern)
+            LocalTime.parse(timeStr, formatter)
+        } catch (e: DateTimeParseException) {
+            throw BookingFlightException("InvalidTimeFormat", "Time must match format $pattern!")
+        }
+    }
+
+    fun parseLocalDateTimeWithDefaultTime(input: String): LocalDateTime {
+        val paddedInput = if (input.length == 10) "$input 00:00:00" else input
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        return LocalDateTime.parse(paddedInput, formatter)
+    }
+
+    fun existByRequestNumber(requestNumber: String) {
+        val existed = bookingFlightRepository.existsByRequestNumber(requestNumber)
+        if (existed) {
+            throw BookingFlightException("RequestNumberExisted", "Request number is already in use!")
+        }
+    }
 }

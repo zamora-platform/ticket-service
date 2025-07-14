@@ -32,7 +32,8 @@ class BookingFlight(
     var returnFlightTime: LocalTime? = null,
     var returnFlightNumber: String? = null,
     var airlineReturnId: String? = null,
-    var flightScheduleDescription: String? = null
+    var flightScheduleDescription: String? = null,
+    var isDeleted: Boolean? = null
 ) : JpaActivityInfo()
 
 enum class FlightType {

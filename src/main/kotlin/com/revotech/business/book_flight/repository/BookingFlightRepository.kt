@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface BookingFlightRepository : JpaRepository<BookingFlight, String> {
+    fun existsByRequestNumber(requestNumber: String): Boolean
+
+    fun findBookingFlightsByIdAndIsDeletedFalse(id: String): BookingFlight?
 }

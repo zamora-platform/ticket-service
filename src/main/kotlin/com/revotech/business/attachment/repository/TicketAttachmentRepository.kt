@@ -13,4 +13,6 @@ interface TicketAttachmentRepository : JpaRepository<TicketAttachment, String> {
             "AND ta.objectType = 'AIRLINE_LOGO' " +
             "AND ta.isDeleted = false ")
     fun findLogoAirlineFileById(id: String): TicketAttachment?
+
+    fun deleteByObjectId(objectId: String): Boolean
 }
