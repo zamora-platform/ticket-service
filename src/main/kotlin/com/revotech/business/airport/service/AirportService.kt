@@ -212,4 +212,22 @@ class AirportService(
 
         return true
     }
+
+    fun getAllAirport(): List<com.revotech.business.airport.dto.Airport> {
+        val allAirport = airportRepository.getAllAirport()
+        return allAirport.map { item ->
+            com.revotech.business.airport.dto.Airport(
+                id = item.getId(),
+                code = item.getCode(),
+                name = item.getName(),
+                countryName = item.getCountryName(),
+                cityName = item.getCityName(),
+                status = item.getStatus(),
+                sortOrder = item.getSortOrder(),
+                isDefault = item.getIsDefault(),
+                createdBy = item.getCreatedBy(),
+                createdTime = item.getCreatedTime()
+            )
+        }
+    }
 }
