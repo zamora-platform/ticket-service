@@ -5,6 +5,7 @@ import com.netflix.graphql.dgs.DgsQuery
 import com.revotech.business.work_content.dto.SearchInput
 import com.revotech.business.work_content.dto.SearchWorkContentResult
 import com.revotech.business.work_content.dto.WorkContentDetail
+import com.revotech.business.work_content.dto.WorkContentList
 import com.revotech.business.work_content.service.WorkContentService
 import com.revotech.graphql.GraphqlUtil
 import com.revotech.graphql.type.CustomPageable
@@ -21,5 +22,10 @@ class WorkContentQuery(private val workContentService: WorkContentService) {
     @DgsQuery
     fun getDetailWorkContentById(id: String): WorkContentDetail {
         return workContentService.getDetailWorkContentById(id)
+    }
+
+    @DgsQuery
+    fun getAllWorkContent(): List<WorkContentList> {
+        return workContentService.getAllWorkContent()
     }
 }

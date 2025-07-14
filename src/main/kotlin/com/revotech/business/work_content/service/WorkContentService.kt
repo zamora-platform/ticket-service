@@ -172,4 +172,18 @@ class WorkContentService(
 
         return true
     }
+
+    fun getAllWorkContent(): List<WorkContentList> {
+        val allWorkContent = workContentRepository.getAllWorkContent()
+        return allWorkContent.map { item ->
+            WorkContentList(
+                id = item.getId(),
+                code = item.getCode(),
+                content = item.getContent(),
+                timeFrom = item.getTimeFrom().toString(),
+                timeTo = item.getTimeTo().toString(),
+                openTicketRegistration = item.getOpenTicketRegistration()
+            )
+        }
+    }
 }
