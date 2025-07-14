@@ -285,9 +285,29 @@ class BookingFlightService(
     }
 
     fun existByRequestNumber(requestNumber: String) {
-        val existed = bookingFlightRepository.existsByRequestNumber(requestNumber)
+        val existed = bookingFlightRepository.existsByRequestNumberAndIsDeletedFalse(requestNumber)
         if (existed) {
             throw BookingFlightException("RequestNumberExisted", "Request number is already in use!")
         }
+    }
+
+    fun existByWorkContentId(workContentId: String): Boolean {
+        return bookingFlightRepository.existsByWorkContentIdAndIsDeletedFalse(workContentId)
+    }
+
+    fun existByCityId(cityId: String): Boolean {
+        return bookingFlightRepository.existsByCityIdAndIsDeletedFalse(cityId)
+    }
+
+    fun existByAirportId(airportId: String): Boolean {
+        return bookingFlightRepository.existsByDepartureAirportIdAndIsDeletedFalse(airportId) &&
+               bookingFlightRepository.existsByAirportToDepartureIdAndIsDeletedFalse(airportId) &&
+               bookingFlightRepository.existsByAirportDepartureReturnIdAndIsDeletedFalse(airportId) &&
+               bookingFlightRepository.existsByAirportToReturnIdAndIsDeletedFalse(airportId)
+    }
+
+    fun existByAirlineId(airlineId: String): Boolean {
+        return bookingFlightRepository.existsByAirlineDepartureIdAndIsDeletedFalse(airlineId) &&
+               bookingFlightRepository.existsByAirlineReturnId(airlineId)
     }
 }

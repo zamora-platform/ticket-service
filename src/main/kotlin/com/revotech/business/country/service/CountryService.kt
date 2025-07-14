@@ -2,6 +2,7 @@ package com.revotech.business.country.service
 
 import com.revotech.business.airport.entity.AirportStatus
 import com.revotech.business.airport.repository.AirportRepository
+import com.revotech.business.book_flight.service.BookingFlightService
 import com.revotech.business.country.dto.*
 import com.revotech.business.country.entity.City
 import com.revotech.business.country.entity.CityStatus
@@ -20,6 +21,7 @@ class CountryService(
     private val countryRepository: CountryRepository,
     private val cityRepository: CityRepository,
     private val airportRepository: AirportRepository,
+    private val bookingFlightService: BookingFlightService,
     private val webUtil: WebUtil
 ) {
     @Transactional
@@ -228,6 +230,17 @@ class CountryService(
                 "CountryInUseByAirport",
                 "Cannot delete country '${currentCountry.name}' because it is being used by the airport '${isUsedByAirport.name}'"
             )
+        }
+
+        val cities = cityRepository.findAllByCountryIdAndStatus(currentCountry.id!!, CityStatus.ACTIVE)
+
+        for (city in cities) {
+            if (bookingFlightService.existByCityId(city.id!!)) {
+                throw CountryException(
+                    "CountryInUseByCity",
+                    "Cannot delete country because it has city being use in a booking flight!"
+                )
+            }
         }
 
         cityRepository.softDeleteCityByCountryId(

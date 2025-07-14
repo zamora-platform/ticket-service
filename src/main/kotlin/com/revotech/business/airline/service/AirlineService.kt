@@ -10,6 +10,8 @@ import com.revotech.business.airport.exception.AirportException
 import com.revotech.business.attachment.entity.AttachmentType
 import com.revotech.business.attachment.repository.TicketAttachmentRepository
 import com.revotech.business.attachment.service.TicketAttachmentService
+import com.revotech.business.book_flight.service.BookingFlightService
+import com.revotech.business.work_content.exception.WorkContentException
 import com.revotech.util.WebUtil
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -19,7 +21,8 @@ class AirlineService(
     private val airlineRepository: AirlineRepository,
     private val ticketAttachmentRepository: TicketAttachmentRepository,
     private val webUtil: WebUtil,
-    private val ticketAttachmentService: TicketAttachmentService
+    private val ticketAttachmentService: TicketAttachmentService,
+    private val bookingFlightService: BookingFlightService
 ) {
     fun saveAirline(saveAirlineReq: SaveAirlineReq): Boolean {
 
@@ -188,6 +191,12 @@ class AirlineService(
     fun deleteAirline(id: String): Boolean {
 
         val currentAirline = findAirlineById(id)
+
+        val isUsingInSomeBookingFlightTicket = bookingFlightService.existByAirlineId(currentAirline.id!!)
+
+        if (isUsingInSomeBookingFlightTicket) {
+            throw AirlineException("AirlineCannotDelete", "Airline can't delete becase it being use in a booking flight ticket")
+        }
 
         currentAirline.apply {
             status = AirlineStatus.NOT_WORKING

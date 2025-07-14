@@ -1,5 +1,6 @@
 package com.revotech.business.work_content.service
 
+import com.revotech.business.book_flight.service.BookingFlightService
 import com.revotech.business.work_content.dto.*
 import com.revotech.business.work_content.entity.WorkContent
 import com.revotech.business.work_content.exception.WorkContentException
@@ -14,6 +15,7 @@ import java.time.format.DateTimeParseException
 @Service
 class WorkContentService(
     private val workContentRepository: WorkContentRepository,
+    private val bookingFlightService: BookingFlightService,
     private val webUtil: WebUtil
 ) {
     fun saveWorkContent(saveWorkContentReq: SaveWorkContentReq): Boolean {
@@ -165,6 +167,12 @@ class WorkContentService(
     fun deleteWorkContent(id: String): Boolean {
 
         val currentWorkContent = findWorkContentById(id)
+
+        val isUsingInSomeBookingFlightTicket = bookingFlightService.existByWorkContentId(currentWorkContent.id!!)
+
+        if (isUsingInSomeBookingFlightTicket) {
+            throw WorkContentException("WorkContentCannotDelete", "Work content can't delete becase it being use in a booking flight ticket")
+        }
 
         currentWorkContent.isDeleted = true
 

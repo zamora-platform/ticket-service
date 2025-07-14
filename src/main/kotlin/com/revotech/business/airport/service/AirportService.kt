@@ -1,5 +1,6 @@
 package com.revotech.business.airport.service
 
+import com.revotech.business.airline.exception.AirlineException
 import com.revotech.business.airport.dto.AirportDetail
 import com.revotech.business.airport.dto.SaveAirportReq
 import com.revotech.business.airport.dto.SearchAirportResult
@@ -8,6 +9,7 @@ import com.revotech.business.airport.entity.Airport
 import com.revotech.business.airport.entity.AirportStatus
 import com.revotech.business.airport.exception.AirportException
 import com.revotech.business.airport.repository.AirportRepository
+import com.revotech.business.book_flight.service.BookingFlightService
 import com.revotech.business.country.entity.City
 import com.revotech.business.country.entity.Country
 import com.revotech.business.country.exception.CountryException
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional
 class AirportService(
     private val airportRepository: AirportRepository,
     private val countryService: CountryService,
+    private val bookingFlightService: BookingFlightService,
     private val webUtil: WebUtil
 ) {
     fun saveAirport(saveAirportReq: SaveAirportReq): Boolean {
@@ -188,6 +191,12 @@ class AirportService(
     fun deleteAirport(id: String): Boolean {
 
         val currentAirport = findAirportById(id)
+
+        val isUsingInSomeBookingFlightTicket = bookingFlightService.existByAirportId(currentAirport.id!!)
+
+        if (isUsingInSomeBookingFlightTicket) {
+            throw AirlineException("AirportCannotDelete", "Airport can't delete becase it being use in a booking flight ticket")
+        }
 
         currentAirport.apply {
             status = AirportStatus.NOT_WORKING
