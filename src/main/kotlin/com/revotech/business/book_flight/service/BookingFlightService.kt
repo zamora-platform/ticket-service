@@ -509,4 +509,17 @@ class BookingFlightService(
 
         return true
     }
+
+    fun getCountAllBookingFlightStatus(): BookingFlightStatusCountDto {
+        val result = bookingFlightRepository.countAllBookingFlightByStatus()
+        val totalAll = bookingFlightRepository.countTotalBookingFlights()
+        val statusMap = result.associateBy { it.getStatus() }
+        return BookingFlightStatusCountDto(
+            all = totalAll,
+            draft = statusMap["DRAFT"]?.getTotal() ?: 0,
+            waitingForApproval = statusMap["WAITING_FOR_APPROVAL"]?.getTotal() ?: 0,
+            approved = statusMap["APPROVED"]?.getTotal() ?: 0,
+            completed = statusMap["COMPLETED"]?.getTotal() ?: 0
+        )
+    }
 }

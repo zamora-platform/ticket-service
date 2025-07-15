@@ -1,6 +1,7 @@
 extend type Query {
     getDetailBookingFlightById(id: String): BookingFlightDetail
     searchBookingFlight(searchBookingFlightInput: SearchBookingFlightInput, pageable: Pageable): SearchBookingFlightResult
+    getCountAllBookingFlightStatus: BookingFlightStatusCountDto
 }
 
 extend type Mutation {
@@ -112,4 +113,12 @@ type SearchBookingFlightResult {
     pageSize: Int,
     totalRecords: Int,
     totalPages: Int
+}
+
+type BookingFlightStatusCountDto {
+    all: Long
+    draft: Long
+    waitingForApproval: Long
+    approved: Long
+    completed: Long
 }

@@ -171,3 +171,16 @@ data class SearchBookingFlightResult(
     val totalRecords: Int,
     val totalPages: Int
 )
+
+data class BookingFlightStatusCountDto(
+    val all: Long = 0,
+    val draft: Long? = 0,
+    val waitingForApproval: Long? = 0,
+    val approved: Long? = 0,
+    val completed: Long? = 0,
+)
+
+interface BookingFlightStatusCountProjection {
+    fun getStatus(): String
+    fun getTotal(): Long
+}

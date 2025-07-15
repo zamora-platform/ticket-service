@@ -1,6 +1,7 @@
 package com.revotech.business.book_flight.repository
 
 import com.revotech.business.book_flight.dto.BookingFlightDetailProjection
+import com.revotech.business.book_flight.dto.BookingFlightStatusCountProjection
 import com.revotech.business.book_flight.entity.BookingFlight
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -198,9 +199,31 @@ interface BookingFlightRepository : JpaRepository<BookingFlight, String> {
         WHERE (:textSearch IS NULL OR
                LOWER(bf.request_number) LIKE LOWER(CONCAT('%', :textSearch, '%')))
         AND bf.is_deleted = false
+        ORDER BY bf.created_time DESC
     """, nativeQuery = true)
     fun searchBookingFlight(
         @Param("textSearch") textSearch: String?,
         pageable: Pageable
     ): Page<BookingFlightDetailProjection>
+
+    @Query(
+        """
+        SELECT 
+            bf.status AS status, 
+            COUNT(*) AS total
+        FROM t_booking_flight bf
+        WHERE bf.status IN ('DRAFT', 'WAITING_FOR_APPROVAL', 'APPROVED', 'COMPLETED')
+        AND bf.is_deleted = false
+        GROUP BY bf.status
+        """, nativeQuery = true)
+    fun countAllBookingFlightByStatus(): List<BookingFlightStatusCountProjection>
+
+    @Query(
+        """
+        SELECT 
+            COUNT(*) 
+        FROM t_booking_flight bf
+        WHERE bf.is_deleted = false
+        """, nativeQuery = true)
+    fun countTotalBookingFlights(): Long
 }
