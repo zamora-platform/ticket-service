@@ -15,6 +15,8 @@ import com.revotech.business.country.entity.Country
 import com.revotech.business.country.exception.CountryException
 import com.revotech.business.country.service.CountryService
 import com.revotech.util.WebUtil
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,9 +25,15 @@ import org.springframework.transaction.annotation.Transactional
 class AirportService(
     private val airportRepository: AirportRepository,
     private val countryService: CountryService,
-    private val bookingFlightService: BookingFlightService,
     private val webUtil: WebUtil
 ) {
+    private lateinit var bookingFlightService: BookingFlightService
+
+    @Autowired
+    fun setBookingFlightService(@Lazy bookingFlightService: BookingFlightService) {
+        this.bookingFlightService = bookingFlightService
+    }
+
     fun saveAirport(saveAirportReq: SaveAirportReq): Boolean {
 
         val userId = webUtil.getUserId()
@@ -195,7 +203,10 @@ class AirportService(
         val isUsingInSomeBookingFlightTicket = bookingFlightService.existByAirportId(currentAirport.id!!)
 
         if (isUsingInSomeBookingFlightTicket) {
-            throw AirlineException("AirportCannotDelete", "Airport can't delete becase it being use in a booking flight ticket")
+            throw AirlineException(
+                "AirportCannotDelete",
+                "Airport can't delete becase it being use in a booking flight ticket"
+            )
         }
 
         currentAirport.apply {

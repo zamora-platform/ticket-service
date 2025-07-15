@@ -6,6 +6,8 @@ import com.revotech.business.work_content.entity.WorkContent
 import com.revotech.business.work_content.exception.WorkContentException
 import com.revotech.business.work_content.repository.WorkContentRepository
 import com.revotech.util.WebUtil
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -15,9 +17,15 @@ import java.time.format.DateTimeParseException
 @Service
 class WorkContentService(
     private val workContentRepository: WorkContentRepository,
-    private val bookingFlightService: BookingFlightService,
     private val webUtil: WebUtil
 ) {
+    private lateinit var bookingFlightService: BookingFlightService
+
+    @Autowired
+    fun setBookingFlightService(@Lazy bookingFlightService: BookingFlightService) {
+        this.bookingFlightService = bookingFlightService
+    }
+
     fun saveWorkContent(saveWorkContentReq: SaveWorkContentReq): Boolean {
 
         val userId = webUtil.getUserId()
@@ -171,7 +179,10 @@ class WorkContentService(
         val isUsingInSomeBookingFlightTicket = bookingFlightService.existByWorkContentId(currentWorkContent.id!!)
 
         if (isUsingInSomeBookingFlightTicket) {
-            throw WorkContentException("WorkContentCannotDelete", "Work content can't delete becase it being use in a booking flight ticket")
+            throw WorkContentException(
+                "WorkContentCannotDelete",
+                "Work content can't delete becase it being use in a booking flight ticket"
+            )
         }
 
         currentWorkContent.isDeleted = true

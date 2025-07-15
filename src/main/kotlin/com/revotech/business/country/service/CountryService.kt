@@ -12,6 +12,8 @@ import com.revotech.business.country.exception.CountryException
 import com.revotech.business.country.repository.CityRepository
 import com.revotech.business.country.repository.CountryRepository
 import com.revotech.util.WebUtil
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -21,9 +23,15 @@ class CountryService(
     private val countryRepository: CountryRepository,
     private val cityRepository: CityRepository,
     private val airportRepository: AirportRepository,
-    private val bookingFlightService: BookingFlightService,
     private val webUtil: WebUtil
 ) {
+    private lateinit var bookingFlightService: BookingFlightService
+
+    @Autowired
+    fun setBookingFlightService(@Lazy bookingFlightService: BookingFlightService) {
+        this.bookingFlightService = bookingFlightService
+    }
+
     @Transactional
     fun saveCountry(saveCountryReq: SaveCountryReq): Boolean {
 

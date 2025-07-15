@@ -11,8 +11,9 @@ import com.revotech.business.attachment.entity.AttachmentType
 import com.revotech.business.attachment.repository.TicketAttachmentRepository
 import com.revotech.business.attachment.service.TicketAttachmentService
 import com.revotech.business.book_flight.service.BookingFlightService
-import com.revotech.business.work_content.exception.WorkContentException
 import com.revotech.util.WebUtil
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
@@ -21,9 +22,15 @@ class AirlineService(
     private val airlineRepository: AirlineRepository,
     private val ticketAttachmentRepository: TicketAttachmentRepository,
     private val webUtil: WebUtil,
-    private val ticketAttachmentService: TicketAttachmentService,
-    private val bookingFlightService: BookingFlightService
+    private val ticketAttachmentService: TicketAttachmentService
 ) {
+    private lateinit var bookingFlightService: BookingFlightService
+
+    @Autowired
+    fun setBookingFlightService(@Lazy bookingFlightService: BookingFlightService) {
+        this.bookingFlightService = bookingFlightService
+    }
+
     fun saveAirline(saveAirlineReq: SaveAirlineReq): Boolean {
 
         val userId = webUtil.getUserId()
@@ -71,7 +78,7 @@ class AirlineService(
         saveAirlineReq.logoFile?.let { file ->
 
             val airlineId = newAirline?.id ?: currentAirlineToUpdate?.id
-                ?: throw IllegalStateException("Airline ID không xác định")
+            ?: throw IllegalStateException("Airline ID không xác định")
 
             // CASE HAS ID
             if (!file.id.isNullOrBlank()) {
@@ -195,7 +202,10 @@ class AirlineService(
         val isUsingInSomeBookingFlightTicket = bookingFlightService.existByAirlineId(currentAirline.id!!)
 
         if (isUsingInSomeBookingFlightTicket) {
-            throw AirlineException("AirlineCannotDelete", "Airline can't delete becase it being use in a booking flight ticket")
+            throw AirlineException(
+                "AirlineCannotDelete",
+                "Airline can't delete becase it being use in a booking flight ticket"
+            )
         }
 
         currentAirline.apply {
