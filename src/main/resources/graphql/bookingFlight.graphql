@@ -87,7 +87,7 @@ type BookingFlightList {
 
 input SearchBookingFlightInput {
     textSearch: String
-    status: BookingFlightStatus
+    status: String
 }
 
 enum FlightType {

@@ -163,7 +163,7 @@ data class BookingFlightList(
 
 data class SearchBookingFlightInput(
     val textSearch: String? = null,
-    val status: BookingFlightStatus? = null,
+    val status: String? = null,
 )
 
 data class SearchBookingFlightResult(
