@@ -1,5 +1,6 @@
 package com.revotech.business.book_flight.dto
 
+import com.revotech.business.book_flight.entity.BookingFlightStatus
 import com.revotech.business.book_flight.entity.FlightType
 import com.revotech.business.book_flight.entity.RequestType
 import org.springframework.web.multipart.MultipartFile
@@ -161,7 +162,8 @@ data class BookingFlightList(
 )
 
 data class SearchBookingFlightInput(
-    val textSearch: String? = null
+    val textSearch: String? = null,
+    val status: BookingFlightStatus? = null,
 )
 
 data class SearchBookingFlightResult(

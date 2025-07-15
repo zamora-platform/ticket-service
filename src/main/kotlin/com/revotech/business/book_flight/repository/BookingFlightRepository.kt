@@ -198,11 +198,13 @@ interface BookingFlightRepository : JpaRepository<BookingFlight, String> {
                  LEFT JOIN t_airline airline_return ON bf.airline_return_id = airline_return.id
         WHERE (:textSearch IS NULL OR
                LOWER(bf.request_number) LIKE LOWER(CONCAT('%', :textSearch, '%')))
+        AND (:status IS NULL OR bf.status = :status)
         AND bf.is_deleted = false
         ORDER BY bf.created_time DESC
     """, nativeQuery = true)
     fun searchBookingFlight(
         @Param("textSearch") textSearch: String?,
+        @Param("status") status: String?,
         pageable: Pageable
     ): Page<BookingFlightDetailProjection>
 

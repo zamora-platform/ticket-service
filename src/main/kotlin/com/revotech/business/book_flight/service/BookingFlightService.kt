@@ -428,7 +428,11 @@ class BookingFlightService(
 
     fun searchBookingFlight(searchInput: SearchBookingFlightInput, pageable: Pageable): SearchBookingFlightResult {
 
-        val listBookingFlightSearched = bookingFlightRepository.searchBookingFlight(searchInput.textSearch, pageable)
+        val listBookingFlightSearched = bookingFlightRepository.searchBookingFlight(
+            searchInput.textSearch,
+            searchInput.status?.toString(),
+            pageable
+        )
 
         val mappedBookingFlightList = listBookingFlightSearched.content.map { item ->
 

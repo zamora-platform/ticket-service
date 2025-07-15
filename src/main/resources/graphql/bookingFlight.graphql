@@ -87,6 +87,7 @@ type BookingFlightList {
 
 input SearchBookingFlightInput {
     textSearch: String
+    status: BookingFlightStatus
 }
 
 enum FlightType {
@@ -121,4 +122,11 @@ type BookingFlightStatusCountDto {
     waitingForApproval: Long
     approved: Long
     completed: Long
+}
+
+enum BookingFlightStatus {
+    DRAFT,
+    WAITING_FOR_APPROVAL,
+    APPROVED,
+    COMPLETED
 }
