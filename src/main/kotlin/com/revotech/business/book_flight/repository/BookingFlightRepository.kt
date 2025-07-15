@@ -89,7 +89,13 @@ interface BookingFlightRepository : JpaRepository<BookingFlight, String> {
                airline_return.name            as airlineReturnName,
         
                -- Mô tả khung giờ bay
-               bf.flight_schedule_description as flightScheduleDescription
+               bf.flight_schedule_description as flightScheduleDescription,
+               
+               -- Trạng thái
+               bf.status                      AS status,
+               
+               -- Người tạo
+               bf.created_by                  AS createdBy
         FROM t_booking_flight bf
                  LEFT JOIN t_work_content wc ON bf.work_content_id = wc.id
                  LEFT JOIN t_city c ON bf.city_id = c.id
@@ -154,26 +160,32 @@ interface BookingFlightRepository : JpaRepository<BookingFlight, String> {
                a_return_arrival.name          AS airportToReturnName,
         
                -- Loại yêu cầu
-               bf.request_type                as requestType,
+               bf.request_type                AS requestType,
         
                -- Giờ bay chiều đi
-               bf.departure_time              as departureTime,
+               bf.departure_time              AS departureTime,
                -- Số hiệu chuyến bay chiều đi
-               bf.outbound_flight_number      as outboundFlightNumber,
+               bf.outbound_flight_number      AS outboundFlightNumber,
                -- Hãng hàng không chiều đi (id, name)
-               bf.airline_departure_id        as airlineDepartureId,
-               airline_departure.name         as airlineDepartureName,
+               bf.airline_departure_id        AS airlineDepartureId,
+               airline_departure.name         AS airlineDepartureName,
         
                -- Giờ bay chiều về
-               bf.return_flight_time          as returnFlightTime,
+               bf.return_flight_time          AS returnFlightTime,
                -- Số hiệu chuyến bay chiều về
-               bf.return_flight_number        as returnFlightNumber,
+               bf.return_flight_number        AS returnFlightNumber,
                -- Hãng hàng không chiều về (id, name)
-               bf.airline_return_id           as airlineReturnId,
-               airline_return.name            as airlineReturnName,
+               bf.airline_return_id           AS airlineReturnId,
+               airline_return.name            AS airlineReturnName,
         
                -- Mô tả khung giờ bay
-               bf.flight_schedule_description as flightScheduleDescription
+               bf.flight_schedule_description AS flightScheduleDescription,
+               
+               -- Trạng thái
+               bf.status                      AS status,
+               
+               -- Người tạo
+               bf.created_by                  AS createdBy
         FROM t_booking_flight bf
                  LEFT JOIN t_work_content wc ON bf.work_content_id = wc.id
                  LEFT JOIN t_city c ON bf.city_id = c.id

@@ -8,6 +8,7 @@ import com.revotech.business.attachment.service.TicketAttachmentService
 import com.revotech.business.book_flight.dto.*
 import com.revotech.business.book_flight.entity.BookingFlight
 import com.revotech.business.book_flight.entity.BookingFlightAttachment
+import com.revotech.business.book_flight.entity.BookingFlightStatus
 import com.revotech.business.book_flight.exception.BookingFlightException
 import com.revotech.business.book_flight.exception.BookingFlightNotFoundException
 import com.revotech.business.book_flight.repository.BookingFlightAttachmentRepository
@@ -81,6 +82,7 @@ class BookingFlightService(
                     returnFlightNumber = saveBookingFlightReq.returnFlightNumber,
                     airlineReturnId = saveBookingFlightReq.airlineReturnId,
                     flightScheduleDescription = saveBookingFlightReq.flightScheduleDescription,
+                    status = BookingFlightStatus.DRAFT,
                     isDeleted = false
                 ).apply {
                     createdBy = userId
@@ -122,6 +124,7 @@ class BookingFlightService(
                         ?.let { LocalTime.parse(it) }
                     airlineReturnId = saveBookingFlightReq.airlineReturnId
                     flightScheduleDescription = saveBookingFlightReq.flightScheduleDescription
+                    lastModifiedBy = webUtil.getUserId()
                 }
             )
         }
@@ -373,11 +376,22 @@ class BookingFlightService(
             }
         }
 
+        val officerInfo = adminServiceClient.getUsersCache(
+            webUtil.getHeaders(), listOf(bookingFlightDetail.getOfficerId()!!)
+        ).firstOrNull()
+
+        val departmentNames: String = officerInfo?.departments
+            ?.mapNotNull { it.name }
+            ?.joinToString(", ")
+            ?: ""
+
         return BookingFlightDetail(
             id = bookingFlightDetail.getId(),
             requestNumber = bookingFlightDetail.getRequestNumber(),
             createdDate = bookingFlightDetail.getCreatedDate()?.toLocalDate(),
             officerId = bookingFlightDetail.getOfficerId(),
+            officerName = officerInfo?.fullName ?: "",
+            officerDepartmentName = departmentNames,
             goldenLotusCode = bookingFlightDetail.getGoldenLotusCode(),
             workContentId = bookingFlightDetail.getWorkContentId(),
             workContentCode = bookingFlightDetail.getWorkContentCode(),
@@ -405,7 +419,9 @@ class BookingFlightService(
             airlineReturnId = bookingFlightDetail.getAirlineReturnId(),
             airlineReturnName = bookingFlightDetail.getAirlineReturnName(),
             flightScheduleDescription = bookingFlightDetail.getFlightScheduleDescription(),
-            attachments = attachmentFilesOfBookingFlight
+            status = bookingFlightDetail.getStatus() ?: BookingFlightStatus.DRAFT.name,
+            attachments = attachmentFilesOfBookingFlight,
+            createdBy = bookingFlightDetail.getCreatedBy()
         )
     }
 
@@ -415,17 +431,22 @@ class BookingFlightService(
 
         val mappedBookingFlightList = listBookingFlightSearched.content.map { item ->
 
-            val officerName = adminServiceClient.getUsersCache(
-                webUtil.getHeaders(),
-                listBookingFlightSearched.content.mapNotNull { it.getOfficerId() }
-            ).mapNotNull { it.fullName }
+            val officerInfo = adminServiceClient.getUsersCache(
+                webUtil.getHeaders(), listBookingFlightSearched.content.mapNotNull { item.getOfficerId() }
+            ).firstOrNull()
+
+            val departmentNames: String = officerInfo?.departments
+                ?.mapNotNull { it.name }
+                ?.joinToString(", ")
+                ?: ""
 
             BookingFlightList(
                 id = item.getId(),
                 requestNumber = item.getRequestNumber(),
                 createdDate = item.getCreatedDate()?.toLocalDate(),
                 officerId = item.getOfficerId(),
-                officerName = officerName.firstOrNull() ?: "Unknown Officer",
+                officerName = officerInfo?.fullName ?: "",
+                officerDepartmentName = departmentNames,
                 goldenLotusCode = item.getGoldenLotusCode(),
                 workContentId = item.getWorkContentId(),
                 workContentCode = item.getWorkContentCode(),
@@ -452,7 +473,9 @@ class BookingFlightService(
                 returnFlightNumber = item.getReturnFlightNumber(),
                 airlineReturnId = item.getAirlineReturnId(),
                 airlineReturnName = item.getAirlineReturnName(),
-                flightScheduleDescription = item.getFlightScheduleDescription()
+                flightScheduleDescription = item.getFlightScheduleDescription(),
+                status = item.getStatus() ?: BookingFlightStatus.DRAFT.name,
+                createdBy = item.getCreatedBy()
             )
         }
 
@@ -463,5 +486,26 @@ class BookingFlightService(
             totalRecords = listBookingFlightSearched.totalElements.toInt(),
             totalPages = listBookingFlightSearched.totalPages
         )
+    }
+
+    fun deleteBookingFlight(id: String): Boolean {
+
+        val currentBooking = findBookingFlightById(id)
+
+        if (currentBooking.status != BookingFlightStatus.DRAFT) {
+            throw BookingFlightException(
+                "BookingFlightNotDraft",
+                "Booking flight can only be deleted when it is in Draft status!"
+            )
+        }
+
+        bookingFlightRepository.save(
+            currentBooking.apply {
+                isDeleted = true
+                lastModifiedBy = webUtil.getUserId()
+            }
+        )
+
+        return true
     }
 }

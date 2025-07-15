@@ -44,6 +44,8 @@ data class BookingFlightDetail(
     var requestNumber: String? = null,
     var createdDate: LocalDate? = null,
     var officerId: String? = null,
+    var officerName: String? = null,
+    var officerDepartmentName: String? = null,
     var goldenLotusCode: String? = null,
     var workContentId: String? = null,
     var workContentCode: String? = null,
@@ -71,7 +73,9 @@ data class BookingFlightDetail(
     var airlineReturnId: String? = null,
     var airlineReturnName: String? = null,
     var flightScheduleDescription: String? = null,
+    var status: String? = null,
     var attachments: List<BookingFlightAttachmentsDetail>? = null,
+    var createdBy: String? = null,
 )
 
 data class BookingFlightAttachmentsDetail(
@@ -114,6 +118,8 @@ interface BookingFlightDetailProjection {
     fun getAirlineReturnId(): String?
     fun getAirlineReturnName(): String?
     fun getFlightScheduleDescription(): String?
+    fun getStatus(): String?
+    fun getCreatedBy(): String?
 }
 
 data class BookingFlightList(
@@ -122,6 +128,7 @@ data class BookingFlightList(
     var createdDate: LocalDate? = null,
     var officerId: String? = null,
     var officerName: String? = null,
+    var officerDepartmentName: String? = null,
     var goldenLotusCode: String? = null,
     var workContentId: String? = null,
     var workContentCode: String? = null,
@@ -148,7 +155,9 @@ data class BookingFlightList(
     var returnFlightNumber: String? = null,
     var airlineReturnId: String? = null,
     var airlineReturnName: String? = null,
-    var flightScheduleDescription: String? = null
+    var flightScheduleDescription: String? = null,
+    var status: String? = null,
+    var createdBy: String? = null,
 )
 
 data class SearchBookingFlightInput(

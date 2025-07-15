@@ -3,11 +3,17 @@ extend type Query {
     searchBookingFlight(searchBookingFlightInput: SearchBookingFlightInput, pageable: Pageable): SearchBookingFlightResult
 }
 
+extend type Mutation {
+    deleteBookingFlight(id: String): Boolean
+}
+
 type BookingFlightDetail {
     id: String
     requestNumber: String
     createdDate: Date
     officerId: String
+    officerName: String
+    officerDepartmentName: String
     goldenLotusCode: String
     workContentId: String
     workContentCode: String
@@ -35,7 +41,9 @@ type BookingFlightDetail {
     airlineReturnId: String
     airlineReturnName: String
     flightScheduleDescription: String
+    status: String
     attachments: [BookingFlightAttachmentsDetail]
+    createdBy: String
 }
 
 type BookingFlightList {
@@ -44,6 +52,7 @@ type BookingFlightList {
     createdDate: Date
     officerId: String
     officerName: String
+    officerDepartmentName: String
     goldenLotusCode: String
     workContentId: String
     workContentCode: String
@@ -71,7 +80,8 @@ type BookingFlightList {
     airlineReturnId: String
     airlineReturnName: String
     flightScheduleDescription: String
-    attachments: [BookingFlightAttachmentsDetail]
+    status: String
+    createdBy: String
 }
 
 input SearchBookingFlightInput {

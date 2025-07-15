@@ -33,6 +33,8 @@ class BookingFlight(
     var returnFlightNumber: String? = null,
     var airlineReturnId: String? = null,
     var flightScheduleDescription: String? = null,
+    @Enumerated(EnumType.STRING)
+    var status: BookingFlightStatus? = null,
     var isDeleted: Boolean? = null
 ) : JpaActivityInfo()
 
@@ -44,4 +46,11 @@ enum class FlightType {
 enum class RequestType {
     BOOK_SPECIFIC_FLIGHT,
     AGENT_CHOOSE_FLIGHT
+}
+
+enum class BookingFlightStatus {
+    DRAFT,
+    WAITING_FOR_APPROVAL,
+    APPROVED,
+    COMPLETED
 }
