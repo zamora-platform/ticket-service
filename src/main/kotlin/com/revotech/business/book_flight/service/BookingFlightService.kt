@@ -124,6 +124,7 @@ class BookingFlightService(
                         ?.let { LocalTime.parse(it) }
                     airlineReturnId = saveBookingFlightReq.airlineReturnId
                     flightScheduleDescription = saveBookingFlightReq.flightScheduleDescription
+                    createdTime = parseLocalDateTimeWithDefaultTime(saveBookingFlightReq.createdDate!!)
                     lastModifiedBy = webUtil.getUserId()
                 }
             )
@@ -137,16 +138,16 @@ class BookingFlightService(
             if (!file.id.isNullOrBlank()) {
                 val existingAttachment = bookingFlightAttachmentRepository.findById(file.id!!)
                     ?: throw BookingFlightNotFoundException("BookingFlightAttachmentNotFound", "Attachment not found")
-                bookingFlightAttachmentRepository.delete(existingAttachment.get())
-                val newBookingFlightAttachmentUpdateCase = bookingFlightAttachmentRepository.save(
-                    BookingFlightAttachment(
-                        bookingFlightId = bookingFlightId,
-                        quote = file.quote,
-                        isDeleted = false
-                    )
-                )
                 if (file.attachment != null) {
+                    bookingFlightAttachmentRepository.delete(existingAttachment.get())
                     ticketAttachmentRepository.deleteByObjectId(existingAttachment.get().id!!)
+                    val newBookingFlightAttachmentUpdateCase = bookingFlightAttachmentRepository.save(
+                        BookingFlightAttachment(
+                            bookingFlightId = bookingFlightId,
+                            quote = file.quote,
+                            isDeleted = false
+                        )
+                    )
                     ticketAttachmentService.uploadFileToTicketAttachment(
                         listOf(file.attachment!!), newBookingFlightAttachmentUpdateCase.id!!, AttachmentType.BOOKING
                     )
