@@ -5,6 +5,7 @@ import com.revotech.business.airport.service.AirportService
 import com.revotech.business.attachment.entity.AttachmentType
 import com.revotech.business.attachment.repository.TicketAttachmentRepository
 import com.revotech.business.attachment.service.TicketAttachmentService
+import com.revotech.business.book_flight.dto.BookingFlightAttachmentsDetail
 import com.revotech.business.book_flight.dto.BookingFlightDetail
 import com.revotech.business.book_flight.dto.SaveBookingFlightReq
 import com.revotech.business.book_flight.entity.BookingFlight
@@ -351,6 +352,61 @@ class BookingFlightService(
     }
 
     fun getDetailBookingFlightById(id: String): BookingFlightDetail {
-        return BookingFlightDetail()
+
+        val bookingFlightDetail = bookingFlightRepository.getDetailBookingFlightById(id)
+            ?: throw BookingFlightNotFoundException("BookingFlightNotFound", "Booking flight not found!")
+
+        val bookingFlightAttachments = bookingFlightAttachmentRepository.findAllByBookingFlightIdAndIsDeletedFalse(
+            bookingFlightDetail.getId()!!
+        )
+
+        val attachmentFilesOfBookingFlight = bookingFlightAttachments.flatMap { bookingAttachment ->
+            ticketAttachmentRepository.findByObjectIdAndObjectTypeAndIsDeletedFalseAndParentIdIsNull(
+                bookingAttachment.id!!, AttachmentType.BOOKING
+            ).map { file ->
+                BookingFlightAttachmentsDetail(
+                    id = bookingAttachment.id,
+                    quote = bookingAttachment.quote,
+                    attachment = file.name,
+                    size = file.size.toString(),
+                    downloadPath = file.downloadPath
+                )
+            }
+        }
+
+        return BookingFlightDetail(
+            id = bookingFlightDetail.getId(),
+            requestNumber = bookingFlightDetail.getRequestNumber(),
+            createdDate = bookingFlightDetail.getCreatedDate()?.toLocalDate(),
+            officerId = bookingFlightDetail.getOfficerId(),
+            goldenLotusCode = bookingFlightDetail.getGoldenLotusCode(),
+            workContentId = bookingFlightDetail.getWorkContentId(),
+            workContentCode = bookingFlightDetail.getWorkContentCode(),
+            workContentContent = bookingFlightDetail.getWorkContentContent(),
+            flightType = bookingFlightDetail.getFlightType(),
+            cityId = bookingFlightDetail.getCityId(),
+            cityName = bookingFlightDetail.getCityName(),
+            flightDate = bookingFlightDetail.getFlightDate(),
+            departureAirportId = bookingFlightDetail.getDepartureAirportId(),
+            departureAirportName = bookingFlightDetail.getDepartureAirportName(),
+            airportToDepartureId = bookingFlightDetail.getAirportToDepartureId(),
+            airportToDepartureName = bookingFlightDetail.getAirportToDepartureName(),
+            returnFlightDate = bookingFlightDetail.getReturnFlightDate(),
+            airportDepartureReturnId = bookingFlightDetail.getAirportDepartureReturnId(),
+            airportDepartureReturnName = bookingFlightDetail.getAirportDepartureReturnName(),
+            airportToReturnId = bookingFlightDetail.getAirportToReturnId(),
+            airportToReturnName = bookingFlightDetail.getAirportToReturnName(),
+            requestType = bookingFlightDetail.getRequestType(),
+            departureTime = bookingFlightDetail.getDepartureTime(),
+            outboundFlightNumber = bookingFlightDetail.getOutboundFlightNumber(),
+            airlineDepartureId = bookingFlightDetail.getAirlineDepartureId(),
+            airlineDepartureName = airlineService.findAirlineById(bookingFlightDetail.getAirlineDepartureId()!!).name,
+            returnFlightTime = bookingFlightDetail.getReturnFlightTime(),
+            returnFlightNumber = bookingFlightDetail.getReturnFlightNumber(),
+            airlineReturnId = bookingFlightDetail.getAirlineReturnId(),
+            airlineReturnName = airlineService.findAirlineById(bookingFlightDetail.getAirlineReturnId()!!).name,
+            flightScheduleDescription = bookingFlightDetail.getFlightScheduleDescription(),
+            attachments = attachmentFilesOfBookingFlight
+        )
     }
 }
