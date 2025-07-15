@@ -115,3 +115,49 @@ interface BookingFlightDetailProjection {
     fun getAirlineReturnName(): String?
     fun getFlightScheduleDescription(): String?
 }
+
+data class BookingFlightList(
+    var id: String? = null,
+    var requestNumber: String? = null,
+    var createdDate: LocalDate? = null,
+    var officerId: String? = null,
+    var goldenLotusCode: String? = null,
+    var workContentId: String? = null,
+    var workContentCode: String? = null,
+    var workContentContent: String? = null,
+    var flightType: FlightType? = null,
+    var cityId: String? = null,
+    var cityName: String? = null,
+    var flightDate: LocalDate? = null,
+    var departureAirportId: String? = null,
+    var departureAirportName: String? = null,
+    var airportToDepartureId: String? = null,
+    var airportToDepartureName: String? = null,
+    var returnFlightDate: LocalDate? = null,
+    var airportDepartureReturnId: String? = null,
+    var airportDepartureReturnName: String? = null,
+    var airportToReturnId: String? = null,
+    var airportToReturnName: String? = null,
+    var requestType: RequestType? = null,
+    var departureTime: LocalTime? = null,
+    var outboundFlightNumber: String? = null,
+    var airlineDepartureId: String? = null,
+    var airlineDepartureName: String? = null,
+    var returnFlightTime: LocalTime? = null,
+    var returnFlightNumber: String? = null,
+    var airlineReturnId: String? = null,
+    var airlineReturnName: String? = null,
+    var flightScheduleDescription: String? = null
+)
+
+data class SearchBookingFlightInput(
+    val textSearch: String? = null
+)
+
+data class SearchBookingFlightResult(
+    val content: List<BookingFlightList>,
+    val page: Int,
+    val pageSize: Int,
+    val totalRecords: Int,
+    val totalPages: Int
+)

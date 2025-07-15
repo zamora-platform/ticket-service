@@ -1,5 +1,6 @@
 extend type Query {
     getDetailBookingFlightById(id: String): BookingFlightDetail
+    searchBookingFlight(searchBookingFlightInput: SearchBookingFlightInput, pageable: Pageable): SearchBookingFlightResult
 }
 
 type BookingFlightDetail {
@@ -37,6 +38,45 @@ type BookingFlightDetail {
     attachments: [BookingFlightAttachmentsDetail]
 }
 
+type BookingFlightList {
+    id: String
+    requestNumber: String
+    createdDate: Date
+    officerId: String
+    goldenLotusCode: String
+    workContentId: String
+    workContentCode: String
+    workContentContent: String
+    flightType: FlightType
+    cityId: String
+    cityName: String
+    flightDate: Date
+    departureAirportId: String
+    departureAirportName: String
+    airportToDepartureId: String
+    airportToDepartureName: String
+    returnFlightDate: Date
+    airportDepartureReturnId: String
+    airportDepartureReturnName: String
+    airportToReturnId: String
+    airportToReturnName: String
+    requestType: RequestType
+    departureTime: Time
+    outboundFlightNumber: String
+    airlineDepartureId: String
+    airlineDepartureName: String
+    returnFlightTime: Time
+    returnFlightNumber: String
+    airlineReturnId: String
+    airlineReturnName: String
+    flightScheduleDescription: String
+    attachments: [BookingFlightAttachmentsDetail]
+}
+
+input SearchBookingFlightInput {
+    textSearch: String
+}
+
 enum FlightType {
     INTERNATIONAL,
     DOMESTIC
@@ -53,4 +93,12 @@ type BookingFlightAttachmentsDetail {
     attachment: String
     size: String
     downloadPath: String
+}
+
+type SearchBookingFlightResult {
+    content: [BookingFlightList],
+    page: Int,
+    pageSize: Int,
+    totalRecords: Int,
+    totalPages: Int
 }

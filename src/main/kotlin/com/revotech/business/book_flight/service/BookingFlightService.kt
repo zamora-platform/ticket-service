@@ -5,9 +5,7 @@ import com.revotech.business.airport.service.AirportService
 import com.revotech.business.attachment.entity.AttachmentType
 import com.revotech.business.attachment.repository.TicketAttachmentRepository
 import com.revotech.business.attachment.service.TicketAttachmentService
-import com.revotech.business.book_flight.dto.BookingFlightAttachmentsDetail
-import com.revotech.business.book_flight.dto.BookingFlightDetail
-import com.revotech.business.book_flight.dto.SaveBookingFlightReq
+import com.revotech.business.book_flight.dto.*
 import com.revotech.business.book_flight.entity.BookingFlight
 import com.revotech.business.book_flight.entity.BookingFlightAttachment
 import com.revotech.business.book_flight.exception.BookingFlightException
@@ -19,6 +17,7 @@ import com.revotech.business.work_content.service.WorkContentService
 import com.revotech.client.AdminServiceClient
 import com.revotech.util.WebUtil
 import jakarta.transaction.Transactional
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -407,6 +406,55 @@ class BookingFlightService(
             airlineReturnName = bookingFlightDetail.getAirlineReturnName(),
             flightScheduleDescription = bookingFlightDetail.getFlightScheduleDescription(),
             attachments = attachmentFilesOfBookingFlight
+        )
+    }
+
+    fun searchBookingFlight(searchInput: SearchBookingFlightInput, pageable: Pageable): SearchBookingFlightResult {
+
+        val listBookingFlightSearched = bookingFlightRepository.searchBookingFlight(searchInput.textSearch, pageable)
+
+        val mappedBookingFlightList = listBookingFlightSearched.content.map { item ->
+            BookingFlightList(
+                id = item.getId(),
+                requestNumber = item.getRequestNumber(),
+                createdDate = item.getCreatedDate()?.toLocalDate(),
+                officerId = item.getOfficerId(),
+                goldenLotusCode = item.getGoldenLotusCode(),
+                workContentId = item.getWorkContentId(),
+                workContentCode = item.getWorkContentCode(),
+                workContentContent = item.getWorkContentContent(),
+                flightType = item.getFlightType(),
+                cityId = item.getCityId(),
+                cityName = item.getCityName(),
+                flightDate = item.getFlightDate(),
+                departureAirportId = item.getDepartureAirportId(),
+                departureAirportName = item.getDepartureAirportName(),
+                airportToDepartureId = item.getAirportToDepartureId(),
+                airportToDepartureName = item.getAirportToDepartureName(),
+                returnFlightDate = item.getReturnFlightDate(),
+                airportDepartureReturnId = item.getAirportDepartureReturnId(),
+                airportDepartureReturnName = item.getAirportDepartureReturnName(),
+                airportToReturnId = item.getAirportToReturnId(),
+                airportToReturnName = item.getAirportToReturnName(),
+                requestType = item.getRequestType(),
+                departureTime = item.getDepartureTime(),
+                outboundFlightNumber = item.getOutboundFlightNumber(),
+                airlineDepartureId = item.getAirlineDepartureId(),
+                airlineDepartureName = item.getAirlineDepartureName(),
+                returnFlightTime = item.getReturnFlightTime(),
+                returnFlightNumber = item.getReturnFlightNumber(),
+                airlineReturnId = item.getAirlineReturnId(),
+                airlineReturnName = item.getAirlineReturnName(),
+                flightScheduleDescription = item.getFlightScheduleDescription()
+            )
+        }
+
+        return SearchBookingFlightResult(
+            content = mappedBookingFlightList,
+            page = listBookingFlightSearched.number + 1,
+            pageSize = listBookingFlightSearched.size,
+            totalRecords = listBookingFlightSearched.totalElements.toInt(),
+            totalPages = listBookingFlightSearched.totalPages
         )
     }
 }
