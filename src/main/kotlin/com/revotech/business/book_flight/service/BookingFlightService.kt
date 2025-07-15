@@ -5,6 +5,7 @@ import com.revotech.business.airport.service.AirportService
 import com.revotech.business.attachment.entity.AttachmentType
 import com.revotech.business.attachment.repository.TicketAttachmentRepository
 import com.revotech.business.attachment.service.TicketAttachmentService
+import com.revotech.business.book_flight.dto.BookingFlightDetail
 import com.revotech.business.book_flight.dto.SaveBookingFlightReq
 import com.revotech.business.book_flight.entity.BookingFlight
 import com.revotech.business.book_flight.entity.BookingFlightAttachment
@@ -63,14 +64,20 @@ class BookingFlightService(
                     flightDate = LocalDate.parse(saveBookingFlightReq.flightDate),
                     departureAirportId = saveBookingFlightReq.departureAirportId,
                     airportToDepartureId = saveBookingFlightReq.airportToDepartureId,
-                    returnFlightDate = LocalDate.parse(saveBookingFlightReq.returnFlightDate),
+                    returnFlightDate = saveBookingFlightReq.returnFlightDate
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let { LocalDate.parse(it) },
                     airportDepartureReturnId = saveBookingFlightReq.airportDepartureReturnId,
                     airportToReturnId = saveBookingFlightReq.airportToReturnId,
                     requestType = saveBookingFlightReq.requestType,
-                    departureTime = LocalTime.parse(saveBookingFlightReq.departureTime),
+                    departureTime = saveBookingFlightReq.departureTime
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let { LocalTime.parse(it) },
                     outboundFlightNumber = saveBookingFlightReq.outboundFlightNumber,
                     airlineDepartureId = saveBookingFlightReq.airlineDepartureId,
-                    returnFlightTime = LocalTime.parse(saveBookingFlightReq.returnFlightTime),
+                    returnFlightTime = saveBookingFlightReq.returnFlightTime
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let { LocalTime.parse(it) },
                     returnFlightNumber = saveBookingFlightReq.returnFlightNumber,
                     airlineReturnId = saveBookingFlightReq.airlineReturnId,
                     flightScheduleDescription = saveBookingFlightReq.flightScheduleDescription,
@@ -99,15 +106,20 @@ class BookingFlightService(
                     flightDate = LocalDate.parse(saveBookingFlightReq.flightDate)
                     departureAirportId = saveBookingFlightReq.departureAirportId
                     airportToDepartureId = saveBookingFlightReq.airportToDepartureId
-                    returnFlightDate = LocalDate.parse(saveBookingFlightReq.returnFlightDate)
+                    returnFlightDate = saveBookingFlightReq.returnFlightDate
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let { LocalDate.parse(it) }
                     airportDepartureReturnId = saveBookingFlightReq.airportDepartureReturnId
                     airportToReturnId = saveBookingFlightReq.airportToReturnId
                     requestType = saveBookingFlightReq.requestType
-                    departureTime = LocalTime.parse(saveBookingFlightReq.departureTime)
+                    departureTime = saveBookingFlightReq.departureTime
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let { LocalTime.parse(it) }
                     outboundFlightNumber = saveBookingFlightReq.outboundFlightNumber
                     airlineDepartureId = saveBookingFlightReq.airlineDepartureId
-                    returnFlightTime = LocalTime.parse(saveBookingFlightReq.returnFlightTime)
-                    returnFlightNumber = saveBookingFlightReq.returnFlightNumber
+                    returnFlightTime = saveBookingFlightReq.returnFlightTime
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let { LocalTime.parse(it) }
                     airlineReturnId = saveBookingFlightReq.airlineReturnId
                     flightScheduleDescription = saveBookingFlightReq.flightScheduleDescription
                 }
@@ -163,6 +175,8 @@ class BookingFlightService(
         isCreate: Boolean,
         currentBookingFlightToUpdate: BookingFlight?
     ) {
+        val formatterLocalDate = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
         // Số phiếu
         if (req.requestNumber.isNullOrBlank()) {
             throw BookingFlightException("RequestNumberRequired", "Request number is required!")
@@ -181,6 +195,10 @@ class BookingFlightService(
             throw BookingFlightException("CreatedDateRequired", "Created date is required!")
         } else {
             validateDateFormat(req.createdDate!!)
+            val createdDate = LocalDate.parse(req.createdDate, formatterLocalDate)
+            if (createdDate.isBefore(LocalDate.now())) {
+                throw BookingFlightException("CreatedDateInPast", "Created date must not be in the past")
+            }
         }
 
         // Tên cán bộ (ID)
@@ -207,6 +225,9 @@ class BookingFlightService(
         if (req.flightDate.isNullOrBlank()) {
             throw BookingFlightException("FlightDateRequired", "Flight date is required!")
         } else {
+            if (LocalDate.parse(req.flightDate, formatterLocalDate).isBefore(LocalDate.now())) {
+                throw BookingFlightException("FlightDateInPast", "Flight date must not be in the past")
+            }
             validateDateFormat(req.flightDate!!)
         }
 
@@ -225,8 +246,26 @@ class BookingFlightService(
         }
 
         // Ngày bay về
-        if (!req.returnFlightDate.isNullOrBlank()) {
+        val returnFlightDate: LocalDate? = if (!req.returnFlightDate.isNullOrBlank()) {
             validateDateFormat(req.returnFlightDate!!)
+            val parsed = LocalDate.parse(req.returnFlightDate, formatterLocalDate)
+            if (parsed.isBefore(LocalDate.now())) {
+                throw BookingFlightException("ReturnFlightDateInPast", "Return flight date must not be in the past")
+            }
+            parsed
+        } else {
+            null
+        }
+
+        // Ngày bay đi + Ngày bay về
+        if (!req.flightDate.isNullOrBlank()) {
+            val flightDate = LocalDate.parse(req.flightDate, formatterLocalDate)
+            if (flightDate.isBefore(LocalDate.now())) {
+                throw BookingFlightException("FlightDateInPast", "Flight date must not be in the past")
+            }
+            if (returnFlightDate != null && flightDate.isAfter(returnFlightDate)) {
+                throw BookingFlightException("FlightDateAfterReturnDate", "Flight date must be before or equal to return flight date")
+            }
         }
 
         // Sân bay khởi hành chiều về
@@ -301,13 +340,17 @@ class BookingFlightService(
 
     fun existByAirportId(airportId: String): Boolean {
         return bookingFlightRepository.existsByDepartureAirportIdAndIsDeletedFalse(airportId) &&
-               bookingFlightRepository.existsByAirportToDepartureIdAndIsDeletedFalse(airportId) &&
-               bookingFlightRepository.existsByAirportDepartureReturnIdAndIsDeletedFalse(airportId) &&
-               bookingFlightRepository.existsByAirportToReturnIdAndIsDeletedFalse(airportId)
+                bookingFlightRepository.existsByAirportToDepartureIdAndIsDeletedFalse(airportId) &&
+                bookingFlightRepository.existsByAirportDepartureReturnIdAndIsDeletedFalse(airportId) &&
+                bookingFlightRepository.existsByAirportToReturnIdAndIsDeletedFalse(airportId)
     }
 
     fun existByAirlineId(airlineId: String): Boolean {
         return bookingFlightRepository.existsByAirlineDepartureIdAndIsDeletedFalse(airlineId) &&
-               bookingFlightRepository.existsByAirlineReturnId(airlineId)
+                bookingFlightRepository.existsByAirlineReturnId(airlineId)
+    }
+
+    fun getDetailBookingFlightById(id: String): BookingFlightDetail {
+        return BookingFlightDetail()
     }
 }
