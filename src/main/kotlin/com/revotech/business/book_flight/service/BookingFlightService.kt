@@ -400,11 +400,11 @@ class BookingFlightService(
             departureTime = bookingFlightDetail.getDepartureTime(),
             outboundFlightNumber = bookingFlightDetail.getOutboundFlightNumber(),
             airlineDepartureId = bookingFlightDetail.getAirlineDepartureId(),
-            airlineDepartureName = airlineService.findAirlineById(bookingFlightDetail.getAirlineDepartureId()!!).name,
+            airlineDepartureName = bookingFlightDetail.getAirlineDepartureName(),
             returnFlightTime = bookingFlightDetail.getReturnFlightTime(),
             returnFlightNumber = bookingFlightDetail.getReturnFlightNumber(),
             airlineReturnId = bookingFlightDetail.getAirlineReturnId(),
-            airlineReturnName = airlineService.findAirlineById(bookingFlightDetail.getAirlineReturnId()!!).name,
+            airlineReturnName = bookingFlightDetail.getAirlineReturnName(),
             flightScheduleDescription = bookingFlightDetail.getFlightScheduleDescription(),
             attachments = attachmentFilesOfBookingFlight
         )
