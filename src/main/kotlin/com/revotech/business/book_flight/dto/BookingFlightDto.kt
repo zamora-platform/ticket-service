@@ -121,6 +121,7 @@ data class BookingFlightList(
     var requestNumber: String? = null,
     var createdDate: LocalDate? = null,
     var officerId: String? = null,
+    var officerName: String? = null,
     var goldenLotusCode: String? = null,
     var workContentId: String? = null,
     var workContentCode: String? = null,

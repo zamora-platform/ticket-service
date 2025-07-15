@@ -414,11 +414,18 @@ class BookingFlightService(
         val listBookingFlightSearched = bookingFlightRepository.searchBookingFlight(searchInput.textSearch, pageable)
 
         val mappedBookingFlightList = listBookingFlightSearched.content.map { item ->
+
+            val officerName = adminServiceClient.getUsersCache(
+                webUtil.getHeaders(),
+                listBookingFlightSearched.content.mapNotNull { it.getOfficerId() }
+            ).mapNotNull { it.fullName }
+
             BookingFlightList(
                 id = item.getId(),
                 requestNumber = item.getRequestNumber(),
                 createdDate = item.getCreatedDate()?.toLocalDate(),
                 officerId = item.getOfficerId(),
+                officerName = officerName.firstOrNull() ?: "Unknown Officer",
                 goldenLotusCode = item.getGoldenLotusCode(),
                 workContentId = item.getWorkContentId(),
                 workContentCode = item.getWorkContentCode(),

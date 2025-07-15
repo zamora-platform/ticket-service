@@ -43,6 +43,7 @@ type BookingFlightList {
     requestNumber: String
     createdDate: Date
     officerId: String
+    officerName: String
     goldenLotusCode: String
     workContentId: String
     workContentCode: String
