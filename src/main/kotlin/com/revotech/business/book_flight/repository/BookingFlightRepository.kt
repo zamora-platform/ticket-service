@@ -200,11 +200,18 @@ interface BookingFlightRepository : JpaRepository<BookingFlight, String> {
                LOWER(bf.request_number) LIKE LOWER(CONCAT('%', :textSearch, '%')))
         AND (:status IS NULL OR :status = '' OR bf.status = :status) 
         AND bf.is_deleted = false
-        ORDER BY bf.created_time DESC
+        ORDER BY
+          CASE WHEN :sortBy = 'flight_date' AND :sortDirection = 'ASC' THEN bf.flight_date END ASC,
+          CASE WHEN :sortBy = 'flight_date' AND :sortDirection = 'DESC' THEN bf.flight_date END DESC,
+          CASE WHEN :sortBy = 'return_flight_date' AND :sortDirection = 'ASC' THEN bf.return_flight_date END ASC,
+          CASE WHEN :sortBy = 'return_flight_date' AND :sortDirection = 'DESC' THEN bf.return_flight_date END DESC,
+          bf.created_time DESC
     """, nativeQuery = true)
     fun searchBookingFlight(
         @Param("textSearch") textSearch: String?,
         @Param("status") status: String?,
+        @Param("sortBy") sortBy: String?,
+        @Param("sortDirection") sortDirection: String?,
         pageable: Pageable
     ): Page<BookingFlightDetailProjection>
 

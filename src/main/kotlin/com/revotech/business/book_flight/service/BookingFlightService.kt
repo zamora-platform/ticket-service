@@ -443,6 +443,8 @@ class BookingFlightService(
         val listBookingFlightSearched = bookingFlightRepository.searchBookingFlight(
             searchInput.textSearch,
             searchInput.status,
+            searchInput.sortBy,
+            searchInput.sortDirection,
             pageable
         )
 

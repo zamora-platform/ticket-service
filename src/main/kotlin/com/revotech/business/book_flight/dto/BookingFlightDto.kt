@@ -164,6 +164,8 @@ data class BookingFlightList(
 data class SearchBookingFlightInput(
     val textSearch: String? = null,
     val status: String? = null,
+    val sortBy: String? = null,
+    val sortDirection: String? = null,
 )
 
 data class SearchBookingFlightResult(
