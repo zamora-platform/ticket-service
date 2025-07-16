@@ -159,6 +159,10 @@ class AirlineService(
                 id = item.getId(),
                 code = item.getCode(),
                 name = item.getName(),
+                logoFile = AirlineLogoDetailAttachment(
+                    id = item.getLogoFileId(),
+                    downloadPath = item.getLogoFileDownloadPath()
+                ),
                 type = item.getType(),
                 sortOrder = item.getSortOrder(),
                 status = item.getStatus(),

@@ -20,6 +20,7 @@ type AirlineList {
     id: String
     code: String
     name: String
+    logoFile: AirlineLogoDetailAttachment
     type: String
     sortOrder: Int
     status: String
