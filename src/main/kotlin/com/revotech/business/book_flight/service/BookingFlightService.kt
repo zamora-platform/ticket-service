@@ -268,7 +268,10 @@ class BookingFlightService(
                 throw BookingFlightException("FlightDateInPast", "Flight date must not be in the past")
             }
             if (returnFlightDate != null && flightDate.isAfter(returnFlightDate)) {
-                throw BookingFlightException("FlightDateAfterReturnDate", "Flight date must be before or equal to return flight date")
+                throw BookingFlightException(
+                    "FlightDateAfterReturnDate",
+                    "Flight date must be before or equal to return flight date"
+                )
             }
         }
 
@@ -300,6 +303,49 @@ class BookingFlightService(
         // Hãng hàng không chiều về
         if (!req.airlineReturnId.isNullOrBlank()) {
             airlineService.findAirlineById(req.airlineReturnId!!)
+        }
+
+        // Số hiệu chuyến bay chiều đi + Số hiệu chuyến bay chiều về
+        if (!req.outboundFlightNumber.isNullOrBlank() && !req.returnFlightNumber.isNullOrBlank()) {
+            if (req.outboundFlightNumber == req.returnFlightNumber) {
+                throw BookingFlightException(
+                    "FlightNumberSame",
+                    "Outbound flight number and return flight number cannot be the same!"
+                )
+            }
+        }
+
+        // (Sân bay khởi hành chiều đi + sân bay đến chiều đi) + (sân bay khởi hành chiều về + sân bay đến chiều về)
+        // Sân bay khởi hành chiều đi + sân bay đến chiều đi bị trùng
+        if (req.departureAirportId == req.airportToDepartureId) {
+            throw BookingFlightException(
+                "DepartureAirportSameAsToDeparture",
+                "The departure airport and the arrival airport cannot be the same!"
+            )
+        }
+
+        // Sân bay khởi hành chiều về + sân bay đến chiều về bị trùng
+        if (req.airportDepartureReturnId == req.airportToReturnId) {
+            throw BookingFlightException(
+                "AirportDepartureReturnSameAsToReturn",
+                "The departure airport for the return and the arrival airport for the return cannot be the same!"
+            )
+        }
+
+        // Sân bay khởi hành chiều đi và Sân bay khởi hành chiều về bị trùng
+        if (req.departureAirportId == req.airportDepartureReturnId) {
+            throw BookingFlightException(
+                "DepartureAirportSameAsReturn",
+                "The departure airport for the outbound and the departure airport for the return cannot be the same!"
+            )
+        }
+
+        // Sân bay đến chiều đi và Sân bay đến chiều về bị trùng
+        if (req.airportToDepartureId == req.airportToReturnId) {
+            throw BookingFlightException(
+                "AirportToDepartureSameAsToReturn",
+                "The departure airport and the return airport cannot be the same!"
+            )
         }
 
         // File
