@@ -526,4 +526,33 @@ class BookingFlightService(
             completed = statusMap["COMPLETED"]?.getTotal() ?: 0
         )
     }
+
+    fun deleteBookingFlightAttachment(id: String): Boolean {
+
+        val currentBookingFlightAttachment = bookingFlightAttachmentRepository.findByIdAndIsDeletedFalse(id)
+            ?: throw BookingFlightException("AttachmentNotFound", "Attachment not found")
+
+        val currentFileSavedInTicketAttachmentRepo = currentBookingFlightAttachment.id?.let {
+            ticketAttachmentRepository.findByObjectIdAndObjectTypeAndIsDeletedFalseAndParentIdIsNull(
+                it, AttachmentType.BOOKING
+            )
+        }
+
+        if (currentFileSavedInTicketAttachmentRepo == null) {
+            throw BookingFlightException("AttachmentNotFound", "Attachment not found")
+        }
+
+        currentFileSavedInTicketAttachmentRepo.forEach {
+            it.isDeleted = true
+            ticketAttachmentRepository.save(it)
+        }
+
+        bookingFlightAttachmentRepository.save(
+            currentBookingFlightAttachment.apply {
+                isDeleted = true
+            }
+        )
+
+        return true
+    }
 }

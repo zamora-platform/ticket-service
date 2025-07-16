@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface BookingFlightAttachmentRepository : JpaRepository<BookingFlightAttachment, String> {
     fun findAllByBookingFlightIdAndIsDeletedFalse(bookingFlightId: String): List<BookingFlightAttachment>
+    fun findByIdAndIsDeletedFalse(id: String): BookingFlightAttachment?
 }

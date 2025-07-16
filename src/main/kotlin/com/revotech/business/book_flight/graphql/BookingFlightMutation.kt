@@ -10,4 +10,9 @@ class BookingFlightMutation(private val bookingFlightService: BookingFlightServi
     fun deleteBookingFlight(id: String): Boolean {
         return bookingFlightService.deleteBookingFlight(id)
     }
+
+    @DgsMutation
+    fun deleteBookingFlightAttachment(id: String): Boolean {
+        return bookingFlightService.deleteBookingFlightAttachment(id)
+    }
 }

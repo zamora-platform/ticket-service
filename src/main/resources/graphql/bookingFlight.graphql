@@ -6,6 +6,7 @@ extend type Query {
 
 extend type Mutation {
     deleteBookingFlight(id: String): Boolean
+    deleteBookingFlightAttachment(id: String): Boolean
 }
 
 type BookingFlightDetail {
