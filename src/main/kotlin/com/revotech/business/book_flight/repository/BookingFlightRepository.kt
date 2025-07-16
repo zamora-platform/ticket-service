@@ -201,10 +201,10 @@ interface BookingFlightRepository : JpaRepository<BookingFlight, String> {
         AND (:status IS NULL OR :status = '' OR bf.status = :status) 
         AND bf.is_deleted = false
         ORDER BY
-          CASE WHEN :sortBy = 'flight_date' AND :sortDirection = 'ASC' THEN bf.flight_date END ASC,
-          CASE WHEN :sortBy = 'flight_date' AND :sortDirection = 'DESC' THEN bf.flight_date END DESC,
-          CASE WHEN :sortBy = 'return_flight_date' AND :sortDirection = 'ASC' THEN bf.return_flight_date END ASC,
-          CASE WHEN :sortBy = 'return_flight_date' AND :sortDirection = 'DESC' THEN bf.return_flight_date END DESC,
+          CASE WHEN :sortBy = 'flightDate' AND :sortDirection = 'ASC' THEN bf.flight_date END ASC,
+          CASE WHEN :sortBy = 'flightDate' AND :sortDirection = 'DESC' THEN bf.flight_date END DESC,
+          CASE WHEN :sortBy = 'returnFlightDate' AND :sortDirection = 'ASC' THEN bf.return_flight_date END ASC,
+          CASE WHEN :sortBy = 'returnFlightDate' AND :sortDirection = 'DESC' THEN bf.return_flight_date END DESC,
           bf.created_time DESC
     """, nativeQuery = true)
     fun searchBookingFlight(
