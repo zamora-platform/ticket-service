@@ -232,4 +232,19 @@ class AirlineService(
             )
         }
     }
+
+    fun deleteAirlineLogo(id: String): Boolean {
+
+        val airlineLogo = ticketAttachmentRepository.findByIdAndIsDeletedFalse(id)
+            ?: throw AirlineException("AirlineLogoNotFound", "Airline logo not found!")
+
+        ticketAttachmentRepository.save(
+            airlineLogo.apply {
+                isDeleted = true
+                lastModifiedBy = webUtil.getUserId()
+            }
+        )
+
+        return true
+    }
 }

@@ -21,4 +21,6 @@ interface TicketAttachmentRepository : JpaRepository<TicketAttachment, String> {
         objectId: String,
         objectType: AttachmentType
     ): List<TicketAttachment>
+
+    fun findByIdAndIsDeletedFalse(id: String): TicketAttachment?
 }

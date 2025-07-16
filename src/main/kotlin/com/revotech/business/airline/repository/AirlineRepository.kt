@@ -67,6 +67,7 @@ interface AirlineRepository : JpaRepository<Airline, String> {
         LEFT JOIN t_attachment am ON al.id = am.object_id AND am.object_type = 'AIRLINE_LOGO'
         WHERE al.id = :id
         AND al.status = 'WORKING'
+        AND am.is_deleted = false
     """, nativeQuery = true)
     fun getDetailAirlineById(
         @Param("id") id: String
