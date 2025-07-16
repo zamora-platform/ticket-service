@@ -140,6 +140,25 @@ class CountryService(
             isCodeExisted(saveCountryReq.code!!)
             isNameExisted(saveCountryReq.name!!)
         }
+
+        if (!saveCountryReq.listCity.isNullOrEmpty()) {
+            val newCityNames = saveCountryReq.listCity!!
+                .mapNotNull { it.cityName?.trim()?.lowercase() }
+
+            // Check trùng trong chính request
+            val duplicateInRequest = newCityNames
+                .groupingBy { it }
+                .eachCount()
+                .filter { it.value > 1 }
+                .keys
+
+            if (duplicateInRequest.isNotEmpty()) {
+                throw CountryException(
+                    "DuplicateCityName",
+                    "Duplicate city name found! Check again!"
+                )
+            }
+        }
     }
 
     fun findCountryById(id: String): Country? {
