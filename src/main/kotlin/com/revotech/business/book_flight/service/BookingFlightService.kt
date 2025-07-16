@@ -301,6 +301,18 @@ class BookingFlightService(
         if (!req.airlineReturnId.isNullOrBlank()) {
             airlineService.findAirlineById(req.airlineReturnId!!)
         }
+
+        // File
+        req.files?.forEach { file ->
+            if (file.attachment != null) {
+                val fileName = file.attachment?.originalFilename ?: ""
+                val allowedExtensions = listOf("pdf", "doc", "docx")
+                val fileExtension = fileName.substringAfterLast('.', "").lowercase()
+                if (fileExtension !in allowedExtensions) {
+                    throw BookingFlightException("InvalidFileType", "Only .pdf, .doc or .docx files are allowed")
+                }
+            }
+        }
     }
 
     fun validateDateFormat(dateStr: String, pattern: String = "yyyy-MM-dd") {
