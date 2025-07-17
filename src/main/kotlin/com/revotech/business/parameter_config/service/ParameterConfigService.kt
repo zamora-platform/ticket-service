@@ -18,6 +18,14 @@ class ParameterConfigService(
     private val webUtil: WebUtil,
     private val adminServiceClient: AdminServiceClient
 ) {
+    /**
+     * Saves or updates the booking parameter configuration.
+     * If the code structure is provided, it validates the structure.
+     * If the code structure is invalid, it throws a ParameterConfigException.
+     *
+     * @param parameterBookingConfigInput The input containing booking configuration details.
+     * @return The saved or updated ParameterBookingConfigResultType.
+     */
     @Transactional
     fun saveParameterBookingConfig(parameterBookingConfigInput: ParameterBookingConfigInput): ParameterBookingConfigResultType {
 
