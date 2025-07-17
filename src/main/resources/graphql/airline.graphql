@@ -1,0 +1,54 @@
+extend type Mutation {
+    deleteAirline(id: String): Boolean
+    deleteAirlineLogo(id: String): Boolean
+}
+
+extend type Query {
+    getNextAirlineSortOrder: Int
+    searchAirline(searchInput: SearchInput, pageable: Pageable): SearchAirlineResult
+    getDetailAirlineById(id: String): AirlineDetail
+    getAllAirline: [AirlineList]
+}
+
+enum AirlineType {
+    INTERNATIONAL,
+    DOMESTIC,
+    OTHER
+}
+
+type AirlineList {
+    id: String
+    code: String
+    name: String
+    logoFile: AirlineLogoDetailAttachment
+    type: String
+    sortOrder: Int
+    status: String
+    createdBy: String
+    createdTime: DateTime
+}
+
+type SearchAirlineResult {
+    content: [AirlineList]
+    page: Int!
+    pageSize: Int!
+    totalRecords: Int!
+    totalPages: Int!
+}
+
+type AirlineDetail {
+    id: String
+    code: String
+    name: String
+    logoFile: AirlineLogoDetailAttachment
+    type: String
+    sortOrder: Int
+    status: String
+    createdBy: String
+    createdTime: DateTime
+}
+
+type AirlineLogoDetailAttachment {
+    id: String
+    downloadPath: String
+}

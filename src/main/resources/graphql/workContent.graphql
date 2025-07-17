@@ -1,0 +1,47 @@
+extend type Mutation {
+    saveWorkContent(saveWorkContentReq: SaveWorkContentReq): Boolean
+    deleteWorkContent(id: String): Boolean
+}
+
+extend type Query {
+    searchWorkContent(searchInput: SearchInput, pageable: Pageable): SearchWorkContentResult
+    getDetailWorkContentById(id: String): WorkContentDetail
+    getAllWorkContent: [WorkContentList]
+}
+
+input SaveWorkContentReq {
+    id: String
+    code: String
+    content: String
+    timeFrom: String
+    timeTo: String
+    openTicketRegistration: Boolean
+}
+
+type WorkContentList {
+    id: String
+    code: String
+    content: String
+    timeFrom: String
+    timeTo: String
+    openTicketRegistration: Boolean
+    createdBy: String
+    createdTime: DateTime
+}
+
+type SearchWorkContentResult {
+    content: [WorkContentList]
+    page: Int!
+    pageSize: Int!
+    totalRecords: Int!
+    totalPages: Int!
+}
+
+type WorkContentDetail {
+    id: String
+    code: String
+    content: String
+    timeFrom: String
+    timeTo: String
+    openTicketRegistration: Boolean
+}
