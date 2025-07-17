@@ -38,6 +38,12 @@ class AirportService(
 
         val userId = webUtil.getUserId()
 
+        val isDefaultReq = saveAirportReq.isDefault == true
+
+        if (isDefaultReq) {
+            airportRepository.unsetAirportIsDefaultTrueToFalse()
+        }
+
         if (saveAirportReq.id == null) {
             // CREATE
             validate(
@@ -52,7 +58,7 @@ class AirportService(
                     countryId = saveAirportReq.countryId,
                     cityId = saveAirportReq.cityId,
                     sortOrder = saveAirportReq.sortOrder ?: getNextAirportSortOrder(),
-                    isDefault = false,
+                    isDefault = isDefaultReq,
                     status = AirportStatus.WORKING
                 ).apply {
                     createdBy = userId
@@ -74,6 +80,7 @@ class AirportService(
                     cityId = saveAirportReq.cityId
                     sortOrder = saveAirportReq.sortOrder ?: getNextAirportSortOrder()
                     lastModifiedBy = userId
+                    isDefault = isDefaultReq
                 }
             )
         }

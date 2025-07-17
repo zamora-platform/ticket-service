@@ -18,6 +18,7 @@ input SaveAirportReq {
     countryId: String
     cityId: String
     sortOrder: Int
+    isDefault: Boolean
 }
 
 type Airport {
