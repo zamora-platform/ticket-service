@@ -43,7 +43,7 @@ interface AirlineRepository : JpaRepository<Airline, String> {
                al.created_by   AS createdBy,
                al.created_time AS createdTime
         FROM t_airline al
-        LEFT JOIN t_attachment am ON al.id = am.object_id AND am.object_type = 'AIRLINE_LOGO'
+        LEFT JOIN t_attachment am ON al.id = am.object_id AND am.object_type = 'AIRLINE_LOGO' AND am.is_deleted = false
         WHERE (:textSearch IS NULL OR
                LOWER(al.code) LIKE LOWER(CONCAT('%', :textSearch, '%')) OR
                LOWER(al.name) LIKE LOWER(CONCAT('%', :textSearch, '%')))
