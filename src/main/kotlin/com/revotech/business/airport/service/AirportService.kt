@@ -34,6 +34,7 @@ class AirportService(
         this.bookingFlightService = bookingFlightService
     }
 
+    @Transactional
     fun saveAirport(saveAirportReq: SaveAirportReq): Boolean {
 
         val userId = webUtil.getUserId()
