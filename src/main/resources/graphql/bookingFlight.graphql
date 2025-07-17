@@ -1,0 +1,135 @@
+extend type Query {
+    getDetailBookingFlightById(id: String): BookingFlightDetail
+    searchBookingFlight(searchBookingFlightInput: SearchBookingFlightInput, pageable: Pageable): SearchBookingFlightResult
+    getCountAllBookingFlightStatus: BookingFlightStatusCountDto
+}
+
+extend type Mutation {
+    deleteBookingFlight(id: String): Boolean
+    deleteBookingFlightAttachment(id: String): Boolean
+}
+
+type BookingFlightDetail {
+    id: String
+    requestNumber: String
+    createdDate: Date
+    officerId: String
+    officerName: String
+    officerDepartmentName: String
+    goldenLotusCode: String
+    workContentId: String
+    workContentCode: String
+    workContentContent: String
+    flightType: FlightType
+    cityId: String
+    cityName: String
+    flightDate: Date
+    departureAirportId: String
+    departureAirportName: String
+    airportToDepartureId: String
+    airportToDepartureName: String
+    returnFlightDate: Date
+    airportDepartureReturnId: String
+    airportDepartureReturnName: String
+    airportToReturnId: String
+    airportToReturnName: String
+    requestType: RequestType
+    departureTime: Time
+    outboundFlightNumber: String
+    airlineDepartureId: String
+    airlineDepartureName: String
+    returnFlightTime: Time
+    returnFlightNumber: String
+    airlineReturnId: String
+    airlineReturnName: String
+    flightScheduleDescription: String
+    status: String
+    attachments: [BookingFlightAttachmentsDetail]
+    createdBy: String
+}
+
+type BookingFlightList {
+    id: String
+    requestNumber: String
+    createdDate: Date
+    officerId: String
+    officerName: String
+    officerDepartmentName: String
+    goldenLotusCode: String
+    workContentId: String
+    workContentCode: String
+    workContentContent: String
+    flightType: FlightType
+    cityId: String
+    cityName: String
+    flightDate: Date
+    departureAirportId: String
+    departureAirportName: String
+    airportToDepartureId: String
+    airportToDepartureName: String
+    returnFlightDate: Date
+    airportDepartureReturnId: String
+    airportDepartureReturnName: String
+    airportToReturnId: String
+    airportToReturnName: String
+    requestType: RequestType
+    departureTime: Time
+    outboundFlightNumber: String
+    airlineDepartureId: String
+    airlineDepartureName: String
+    returnFlightTime: Time
+    returnFlightNumber: String
+    airlineReturnId: String
+    airlineReturnName: String
+    flightScheduleDescription: String
+    status: String
+    createdBy: String
+}
+
+input SearchBookingFlightInput {
+    textSearch: String
+    status: String
+    sortBy: String
+    sortDirection: String
+}
+
+enum FlightType {
+    INTERNATIONAL,
+    DOMESTIC
+}
+
+enum RequestType {
+    BOOK_SPECIFIC_FLIGHT,
+    AGENT_CHOOSE_FLIGHT
+}
+
+type BookingFlightAttachmentsDetail {
+    id: String
+    quote: String
+    attachment: String
+    size: String
+    downloadPath: String
+}
+
+type SearchBookingFlightResult {
+    content: [BookingFlightList],
+    page: Int,
+    pageSize: Int,
+    totalRecords: Int,
+    totalPages: Int
+}
+
+type BookingFlightStatusCountDto {
+    all: Long
+    draft: Long
+    waitingForApproval: Long
+    approved: Long
+    completed: Long
+}
+
+enum BookingFlightStatus {
+    DRAFT,
+    WAITING_FOR_APPROVAL,
+    APPROVED,
+    COMPLETED
+}

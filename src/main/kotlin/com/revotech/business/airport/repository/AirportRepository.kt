@@ -91,4 +91,25 @@ interface AirportRepository : JpaRepository<Airport, String> {
     fun unsetAirportIsDefaultTrueToFalse(): Int
 
     fun findByCountryIdAndStatus(countryId: String, status: AirportStatus): Airport?
+
+    @Query(
+        """
+            SELECT a.id           AS id,
+                   a.code         AS code,
+                   a.name         AS name,
+                   c.name         AS countryName,
+                   ct.name        AS cityName,
+                   a.status       AS status,
+                   a.sort_order   AS sortOrder,
+                   a.is_default   AS isDefault,
+                   a.created_by   AS createdBy,
+                   a.created_time AS createdTime
+            FROM t_airport a
+            LEFT JOIN t_country c ON a.country_id = c.id
+            LEFT JOIN t_city ct ON a.city_id = ct.id
+            WHERE a.status = 'WORKING'
+            ORDER BY a.is_default DESC, a.sort_order ASC, a.created_time DESC
+        """, nativeQuery = true
+    )
+    fun getAllAirport(): List<AirportProjection>
 }

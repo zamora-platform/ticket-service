@@ -1,11 +1,13 @@
 extend type Mutation {
     deleteAirline(id: String): Boolean
+    deleteAirlineLogo(id: String): Boolean
 }
 
 extend type Query {
     getNextAirlineSortOrder: Int
     searchAirline(searchInput: SearchInput, pageable: Pageable): SearchAirlineResult
     getDetailAirlineById(id: String): AirlineDetail
+    getAllAirline: [AirlineList]
 }
 
 enum AirlineType {
@@ -18,6 +20,7 @@ type AirlineList {
     id: String
     code: String
     name: String
+    logoFile: AirlineLogoDetailAttachment
     type: String
     sortOrder: Int
     status: String

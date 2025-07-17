@@ -2,6 +2,7 @@ package com.revotech.business.country.service
 
 import com.revotech.business.airport.entity.AirportStatus
 import com.revotech.business.airport.repository.AirportRepository
+import com.revotech.business.book_flight.service.BookingFlightService
 import com.revotech.business.country.dto.*
 import com.revotech.business.country.entity.City
 import com.revotech.business.country.entity.CityStatus
@@ -11,6 +12,8 @@ import com.revotech.business.country.exception.CountryException
 import com.revotech.business.country.repository.CityRepository
 import com.revotech.business.country.repository.CountryRepository
 import com.revotech.util.WebUtil
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -22,10 +25,23 @@ class CountryService(
     private val airportRepository: AirportRepository,
     private val webUtil: WebUtil
 ) {
+    private lateinit var bookingFlightService: BookingFlightService
+
+    @Autowired
+    fun setBookingFlightService(@Lazy bookingFlightService: BookingFlightService) {
+        this.bookingFlightService = bookingFlightService
+    }
+
     @Transactional
     fun saveCountry(saveCountryReq: SaveCountryReq): Boolean {
 
         val userId = webUtil.getUserId()
+
+        val isDefaultReq = saveCountryReq.isDefault == true
+
+        if (isDefaultReq) {
+            countryRepository.unsetCountryIsDefaultTrueToFalse()
+        }
 
         if (saveCountryReq.id == null) {
             validate(
@@ -38,7 +54,7 @@ class CountryService(
                 Country(
                     code = saveCountryReq.code,
                     name = saveCountryReq.name,
-                    isDefault = false,
+                    isDefault = isDefaultReq,
                     sortOrder = saveCountryReq.sortOrder ?: getNextCountrySortOrder(),
                     status = CountryStatus.ACTIVE
                 ).apply {
@@ -71,6 +87,7 @@ class CountryService(
                 code = saveCountryReq.code
                 name = saveCountryReq.name
                 sortOrder = saveCountryReq.sortOrder
+                isDefault = isDefaultReq
                 lastModifiedBy = userId
             }
 
@@ -129,6 +146,25 @@ class CountryService(
         } else {
             isCodeExisted(saveCountryReq.code!!)
             isNameExisted(saveCountryReq.name!!)
+        }
+
+        if (!saveCountryReq.listCity.isNullOrEmpty()) {
+            val newCityNames = saveCountryReq.listCity!!
+                .mapNotNull { it.cityName?.trim()?.lowercase() }
+
+            // Check trùng trong chính request
+            val duplicateInRequest = newCityNames
+                .groupingBy { it }
+                .eachCount()
+                .filter { it.value > 1 }
+                .keys
+
+            if (duplicateInRequest.isNotEmpty()) {
+                throw CountryException(
+                    "DuplicateCityName",
+                    "Duplicate city name found! Check again!"
+                )
+            }
         }
     }
 
@@ -230,6 +266,17 @@ class CountryService(
             )
         }
 
+        val cities = cityRepository.findAllByCountryIdAndStatus(currentCountry.id!!, CityStatus.ACTIVE)
+
+        for (city in cities) {
+            if (bookingFlightService.existByCityId(city.id!!)) {
+                throw CountryException(
+                    "CountryInUseByCity",
+                    "Cannot delete country because it has city being use in a booking flight!"
+                )
+            }
+        }
+
         cityRepository.softDeleteCityByCountryId(
             listOf(currentCountry.id!!)
         )
@@ -286,6 +333,16 @@ class CountryService(
                         cityName = cityList.getCityName()
                     )
                 }
+            )
+        }
+    }
+
+    fun getAllCity(): List<ListCity> {
+        val allCity = cityRepository.findAllCities()
+        return allCity.map { item ->
+            ListCity(
+                cityId = item.getCityId(),
+                cityName = item.getCityName()
             )
         }
     }

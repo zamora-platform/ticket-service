@@ -22,6 +22,7 @@ data class AirlineList(
     var id: String? = null,
     var code: String? = null,
     var name: String? = null,
+    var logoFile: AirlineLogoDetailAttachment? = null,
     var type: String? = null,
     var sortOrder: Int? = null,
     var status: String? = null,

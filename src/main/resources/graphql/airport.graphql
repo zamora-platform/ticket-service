@@ -8,6 +8,7 @@ extend type Query {
     getNextAirportSortOrder: Int
     searchAirport(searchInput: SearchInput, pageable: Pageable): SearchAirportResult
     getDetailAirportById(id: String): AirportDetail
+    getAllAirport: [Airport]
 }
 
 input SaveAirportReq {
@@ -17,6 +18,7 @@ input SaveAirportReq {
     countryId: String
     cityId: String
     sortOrder: Int
+    isDefault: Boolean
 }
 
 type Airport {

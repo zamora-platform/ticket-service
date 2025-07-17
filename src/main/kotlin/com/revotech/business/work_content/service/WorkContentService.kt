@@ -1,10 +1,13 @@
 package com.revotech.business.work_content.service
 
+import com.revotech.business.book_flight.service.BookingFlightService
 import com.revotech.business.work_content.dto.*
 import com.revotech.business.work_content.entity.WorkContent
 import com.revotech.business.work_content.exception.WorkContentException
 import com.revotech.business.work_content.repository.WorkContentRepository
 import com.revotech.util.WebUtil
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -16,6 +19,13 @@ class WorkContentService(
     private val workContentRepository: WorkContentRepository,
     private val webUtil: WebUtil
 ) {
+    private lateinit var bookingFlightService: BookingFlightService
+
+    @Autowired
+    fun setBookingFlightService(@Lazy bookingFlightService: BookingFlightService) {
+        this.bookingFlightService = bookingFlightService
+    }
+
     fun saveWorkContent(saveWorkContentReq: SaveWorkContentReq): Boolean {
 
         val userId = webUtil.getUserId()
@@ -166,10 +176,33 @@ class WorkContentService(
 
         val currentWorkContent = findWorkContentById(id)
 
+        val isUsingInSomeBookingFlightTicket = bookingFlightService.existByWorkContentId(currentWorkContent.id!!)
+
+        if (isUsingInSomeBookingFlightTicket) {
+            throw WorkContentException(
+                "WorkContentCannotDelete",
+                "Work content can't delete becase it being use in a booking flight ticket"
+            )
+        }
+
         currentWorkContent.isDeleted = true
 
         workContentRepository.save(currentWorkContent)
 
         return true
+    }
+
+    fun getAllWorkContent(): List<WorkContentList> {
+        val allWorkContent = workContentRepository.getAllWorkContent()
+        return allWorkContent.map { item ->
+            WorkContentList(
+                id = item.getId(),
+                code = item.getCode(),
+                content = item.getContent(),
+                timeFrom = item.getTimeFrom().toString(),
+                timeTo = item.getTimeTo().toString(),
+                openTicketRegistration = item.getOpenTicketRegistration()
+            )
+        }
     }
 }

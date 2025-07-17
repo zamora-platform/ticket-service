@@ -30,5 +30,5 @@ class TicketAttachment(
 ) : JpaActivityInfo()
 
 enum class AttachmentType {
-    AIRPORT, AIRLINE, AIRLINE_LOGO
+    AIRPORT, AIRLINE, AIRLINE_LOGO, BOOKING
 }

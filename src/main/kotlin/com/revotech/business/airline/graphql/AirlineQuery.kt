@@ -3,6 +3,7 @@ package com.revotech.business.airline.graphql
 import com.netflix.graphql.dgs.DgsComponent
 import com.netflix.graphql.dgs.DgsQuery
 import com.revotech.business.airline.dto.AirlineDetail
+import com.revotech.business.airline.dto.AirlineList
 import com.revotech.business.airline.dto.SearchAirlineResult
 import com.revotech.business.airline.service.AirlineService
 import com.revotech.business.airport.dto.SearchAirportResult
@@ -27,5 +28,10 @@ class AirlineQuery(private val airlineService: AirlineService) {
     @DgsQuery
     fun getDetailAirlineById(id: String): AirlineDetail {
         return airlineService.getDetailAirlineById(id)
+    }
+
+    @DgsQuery
+    fun getAllAirline(): List<AirlineList> {
+        return airlineService.getAllAirline()
     }
 }

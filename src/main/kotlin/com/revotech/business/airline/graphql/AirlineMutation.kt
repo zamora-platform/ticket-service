@@ -11,4 +11,9 @@ class AirlineMutation(private val airlineService: AirlineService) {
     fun deleteAirline(id: String): Boolean {
         return airlineService.deleteAirline(id)
     }
+
+    @DgsMutation
+    fun deleteAirlineLogo(id: String): Boolean {
+        return airlineService.deleteAirlineLogo(id)
+    }
 }
