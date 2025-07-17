@@ -18,6 +18,7 @@ input SaveCountryReq {
     name: String
     sortOrder: Int
     listCity: [ListCityReq]
+    isDefault: Boolean
 }
 
 input ListCityReq {

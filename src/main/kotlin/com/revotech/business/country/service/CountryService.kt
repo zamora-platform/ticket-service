@@ -37,6 +37,12 @@ class CountryService(
 
         val userId = webUtil.getUserId()
 
+        val isDefaultReq = saveCountryReq.isDefault == true
+
+        if (isDefaultReq) {
+            countryRepository.unsetCountryIsDefaultTrueToFalse()
+        }
+
         if (saveCountryReq.id == null) {
             validate(
                 saveCountryReq = saveCountryReq,
@@ -48,7 +54,7 @@ class CountryService(
                 Country(
                     code = saveCountryReq.code,
                     name = saveCountryReq.name,
-                    isDefault = false,
+                    isDefault = isDefaultReq,
                     sortOrder = saveCountryReq.sortOrder ?: getNextCountrySortOrder(),
                     status = CountryStatus.ACTIVE
                 ).apply {
@@ -81,6 +87,7 @@ class CountryService(
                 code = saveCountryReq.code
                 name = saveCountryReq.name
                 sortOrder = saveCountryReq.sortOrder
+                isDefault = isDefaultReq
                 lastModifiedBy = userId
             }
 

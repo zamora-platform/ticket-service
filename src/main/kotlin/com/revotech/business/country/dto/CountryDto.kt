@@ -7,7 +7,8 @@ data class SaveCountryReq(
     var code: String? = null,
     var name: String? = null,
     var sortOrder: Int? = null,
-    var listCity: List<ListCityReq>? = emptyList()
+    var listCity: List<ListCityReq>? = emptyList(),
+    var isDefault: Boolean? = null,
 )
 
 data class ListCityReq(

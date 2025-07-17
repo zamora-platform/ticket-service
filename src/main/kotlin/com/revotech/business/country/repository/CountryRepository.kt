@@ -97,4 +97,6 @@ interface CountryRepository : JpaRepository<Country, String> {
         """, nativeQuery = true
     )
     fun getAllCountryAndItCity(): List<CountryProjection>
+
+    fun existsByIsDefaultTrueAndStatus(status: CountryStatus): Boolean
 }
