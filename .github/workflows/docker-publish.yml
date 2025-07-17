@@ -35,7 +35,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'zamora-platform/backend'
-          token: '${{ secrets.PAT_ALL_PROJECT }}'
+          #token: '${{ secrets.PAT_ALL_PROJECT }}'
+          token: '${{ secrets.GITHUB_TOKEN }}'
           path: backend
       - name: Checkout repository
         uses: actions/checkout@v4
