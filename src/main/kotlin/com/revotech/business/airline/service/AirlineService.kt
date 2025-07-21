@@ -10,7 +10,10 @@ import com.revotech.business.airport.exception.AirportException
 import com.revotech.business.attachment.entity.AttachmentType
 import com.revotech.business.attachment.repository.TicketAttachmentRepository
 import com.revotech.business.attachment.service.TicketAttachmentService
+import com.revotech.business.book_flight.service.BookingFlightService
 import com.revotech.util.WebUtil
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
@@ -21,6 +24,13 @@ class AirlineService(
     private val webUtil: WebUtil,
     private val ticketAttachmentService: TicketAttachmentService
 ) {
+    private lateinit var bookingFlightService: BookingFlightService
+
+    @Autowired
+    fun setBookingFlightService(@Lazy bookingFlightService: BookingFlightService) {
+        this.bookingFlightService = bookingFlightService
+    }
+
     fun saveAirline(saveAirlineReq: SaveAirlineReq): Boolean {
 
         val userId = webUtil.getUserId()
@@ -68,7 +78,7 @@ class AirlineService(
         saveAirlineReq.logoFile?.let { file ->
 
             val airlineId = newAirline?.id ?: currentAirlineToUpdate?.id
-                ?: throw IllegalStateException("Airline ID không xác định")
+            ?: throw IllegalStateException("Airline ID không xác định")
 
             // CASE HAS ID
             if (!file.id.isNullOrBlank()) {
@@ -149,6 +159,10 @@ class AirlineService(
                 id = item.getId(),
                 code = item.getCode(),
                 name = item.getName(),
+                logoFile = AirlineLogoDetailAttachment(
+                    id = item.getLogoFileId(),
+                    downloadPath = item.getLogoFileDownloadPath()
+                ),
                 type = item.getType(),
                 sortOrder = item.getSortOrder(),
                 status = item.getStatus(),
@@ -189,11 +203,51 @@ class AirlineService(
 
         val currentAirline = findAirlineById(id)
 
+        val isUsingInSomeBookingFlightTicket = bookingFlightService.existByAirlineId(currentAirline.id!!)
+
+        if (isUsingInSomeBookingFlightTicket) {
+            throw AirlineException(
+                "AirlineCannotDelete",
+                "Airline can't delete becase it being use in a booking flight ticket"
+            )
+        }
+
         currentAirline.apply {
             status = AirlineStatus.NOT_WORKING
         }
 
         airlineRepository.save(currentAirline)
+
+        return true
+    }
+
+    fun getAllAirline(): List<AirlineList> {
+        val allAirline = airlineRepository.getAllAirline()
+        return allAirline.map { item ->
+            AirlineList(
+                id = item.getId(),
+                code = item.getCode(),
+                name = item.getName(),
+                type = item.getType(),
+                sortOrder = item.getSortOrder(),
+                status = item.getStatus(),
+                createdBy = item.getCreatedBy(),
+                createdTime = item.getCreatedTime()
+            )
+        }
+    }
+
+    fun deleteAirlineLogo(id: String): Boolean {
+
+        val airlineLogo = ticketAttachmentRepository.findByIdAndIsDeletedFalse(id)
+            ?: throw AirlineException("AirlineLogoNotFound", "Airline logo not found!")
+
+        ticketAttachmentRepository.save(
+            airlineLogo.apply {
+                isDeleted = true
+                lastModifiedBy = webUtil.getUserId()
+            }
+        )
 
         return true
     }

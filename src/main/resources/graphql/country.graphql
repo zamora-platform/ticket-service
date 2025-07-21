@@ -9,6 +9,7 @@ extend type Query {
     getNextCountrySortOrder: Int
     getDetailCountryById(id: String): CountryDetail
     getAllCountryAndItCity: [CountryList]
+    getAllCity: [ListCity]
 }
 
 input SaveCountryReq {
@@ -17,6 +18,7 @@ input SaveCountryReq {
     name: String
     sortOrder: Int
     listCity: [ListCityReq]
+    isDefault: Boolean
 }
 
 input ListCityReq {

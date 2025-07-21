@@ -1,5 +1,6 @@
 package com.revotech.business.airport.service
 
+import com.revotech.business.airline.exception.AirlineException
 import com.revotech.business.airport.dto.AirportDetail
 import com.revotech.business.airport.dto.SaveAirportReq
 import com.revotech.business.airport.dto.SearchAirportResult
@@ -8,11 +9,14 @@ import com.revotech.business.airport.entity.Airport
 import com.revotech.business.airport.entity.AirportStatus
 import com.revotech.business.airport.exception.AirportException
 import com.revotech.business.airport.repository.AirportRepository
+import com.revotech.business.book_flight.service.BookingFlightService
 import com.revotech.business.country.entity.City
 import com.revotech.business.country.entity.Country
 import com.revotech.business.country.exception.CountryException
 import com.revotech.business.country.service.CountryService
 import com.revotech.util.WebUtil
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,9 +27,23 @@ class AirportService(
     private val countryService: CountryService,
     private val webUtil: WebUtil
 ) {
+    private lateinit var bookingFlightService: BookingFlightService
+
+    @Autowired
+    fun setBookingFlightService(@Lazy bookingFlightService: BookingFlightService) {
+        this.bookingFlightService = bookingFlightService
+    }
+
+    @Transactional
     fun saveAirport(saveAirportReq: SaveAirportReq): Boolean {
 
         val userId = webUtil.getUserId()
+
+        val isDefaultReq = saveAirportReq.isDefault == true
+
+        if (isDefaultReq) {
+            airportRepository.unsetAirportIsDefaultTrueToFalse()
+        }
 
         if (saveAirportReq.id == null) {
             // CREATE
@@ -41,7 +59,7 @@ class AirportService(
                     countryId = saveAirportReq.countryId,
                     cityId = saveAirportReq.cityId,
                     sortOrder = saveAirportReq.sortOrder ?: getNextAirportSortOrder(),
-                    isDefault = false,
+                    isDefault = isDefaultReq,
                     status = AirportStatus.WORKING
                 ).apply {
                     createdBy = userId
@@ -63,6 +81,7 @@ class AirportService(
                     cityId = saveAirportReq.cityId
                     sortOrder = saveAirportReq.sortOrder ?: getNextAirportSortOrder()
                     lastModifiedBy = userId
+                    isDefault = isDefaultReq
                 }
             )
         }
@@ -189,6 +208,15 @@ class AirportService(
 
         val currentAirport = findAirportById(id)
 
+        val isUsingInSomeBookingFlightTicket = bookingFlightService.existByAirportId(currentAirport.id!!)
+
+        if (isUsingInSomeBookingFlightTicket) {
+            throw AirlineException(
+                "AirportCannotDelete",
+                "Airport can't delete becase it being use in a booking flight ticket"
+            )
+        }
+
         currentAirport.apply {
             status = AirportStatus.NOT_WORKING
         }
@@ -211,5 +239,23 @@ class AirportService(
         }
 
         return true
+    }
+
+    fun getAllAirport(): List<com.revotech.business.airport.dto.Airport> {
+        val allAirport = airportRepository.getAllAirport()
+        return allAirport.map { item ->
+            com.revotech.business.airport.dto.Airport(
+                id = item.getId(),
+                code = item.getCode(),
+                name = item.getName(),
+                countryName = item.getCountryName(),
+                cityName = item.getCityName(),
+                status = item.getStatus(),
+                sortOrder = item.getSortOrder(),
+                isDefault = item.getIsDefault(),
+                createdBy = item.getCreatedBy(),
+                createdTime = item.getCreatedTime()
+            )
+        }
     }
 }

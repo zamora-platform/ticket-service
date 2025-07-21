@@ -35,12 +35,15 @@ interface AirlineRepository : JpaRepository<Airline, String> {
         SELECT al.id           AS id,
                al.code         AS code,
                al.name         AS name,
+               am.id            AS logoFileId,
+               am.download_path AS logoFileDownloadPath,
                al.type         AS type,
                al.sort_order   AS sortOrder,
                al.status       AS status,
                al.created_by   AS createdBy,
                al.created_time AS createdTime
         FROM t_airline al
+        LEFT JOIN t_attachment am ON al.id = am.object_id AND am.object_type = 'AIRLINE_LOGO' AND am.is_deleted = false
         WHERE (:textSearch IS NULL OR
                LOWER(al.code) LIKE LOWER(CONCAT('%', :textSearch, '%')) OR
                LOWER(al.name) LIKE LOWER(CONCAT('%', :textSearch, '%')))
@@ -64,11 +67,26 @@ interface AirlineRepository : JpaRepository<Airline, String> {
                al.created_by    AS createdBy,
                al.created_time  AS createdTime
         FROM t_airline al
-        LEFT JOIN t_attachment am ON al.id = am.object_id AND am.object_type = 'AIRLINE_LOGO'
+        LEFT JOIN t_attachment am ON al.id = am.object_id AND am.object_type = 'AIRLINE_LOGO' AND am.is_deleted = false
         WHERE al.id = :id
         AND al.status = 'WORKING'
     """, nativeQuery = true)
     fun getDetailAirlineById(
         @Param("id") id: String
     ): AirlineProjection?
+
+    @Query("""
+        SELECT al.id           AS id,
+               al.code         AS code,
+               al.name         AS name,
+               al.type         AS type,
+               al.sort_order   AS sortOrder,
+               al.status       AS status,
+               al.created_by   AS createdBy,
+               al.created_time AS createdTime
+        FROM t_airline al
+        WHERE al.status = 'WORKING'
+        ORDER BY al.sort_order ASC, al.created_time DESC
+    """, nativeQuery = true)
+    fun getAllAirline(): List<AirlineProjection>
 }

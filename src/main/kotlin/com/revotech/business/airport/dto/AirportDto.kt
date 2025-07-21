@@ -9,6 +9,7 @@ data class SaveAirportReq(
     var countryId: String? = null,
     var cityId: String? = null,
     var sortOrder: Int? = null,
+    var isDefault: Boolean? = null,
 )
 
 data class Airport(

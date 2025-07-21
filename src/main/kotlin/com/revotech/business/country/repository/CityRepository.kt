@@ -2,6 +2,7 @@ package com.revotech.business.country.repository
 
 import com.revotech.business.country.dto.CityListProjection
 import com.revotech.business.country.entity.City
+import com.revotech.business.country.entity.CityStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -39,4 +40,17 @@ interface CityRepository : JpaRepository<City, String> {
     ): Int
 
     fun findCityById(id: String): City?
+
+    @Query(
+        """
+            SELECT c.id         AS cityId,
+                   c.name       AS cityName,
+                   c.country_id AS countryId
+            FROM t_city c
+            WHERE c.status = 'ACTIVE'
+        """, nativeQuery = true
+    )
+    fun findAllCities(): List<CityListProjection>
+
+    fun findAllByCountryIdAndStatus(countryId: String, status: CityStatus): List<City>
 }

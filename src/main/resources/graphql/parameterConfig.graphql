@@ -1,0 +1,46 @@
+# --- MUTATION ---
+extend type Mutation {
+    saveParameterBookingConfig(parameterBookingConfigInput: ParameterBookingConfigInput): ParameterBookingConfigResultType
+    increaseBookingRequestCodeStartValue: Boolean
+}
+
+extend type Query {
+    getParameterBookingConfig: ParameterBookingConfigResultType
+    getBookingRequestCode: String
+}
+
+# --- INPUTS ---
+
+input ParameterBookingConfigInput {
+    id: String
+    value: ParameterBookingValueInput
+}
+
+input ParameterBookingValueInput {
+    code: BookingCodeSettingsInput
+}
+
+input BookingCodeSettingsInput {
+    enabledGenerateCode: Boolean
+    codeStructure: String
+    startValue: String
+    allowEdit: Boolean
+}
+
+# --- OUTPUT TYPES ---
+
+type ParameterBookingConfigResultType {
+    id: String
+    value: ParameterBookingValueResultType
+}
+
+type ParameterBookingValueResultType {
+    code: BookingCodeSettingsResultType
+}
+
+type BookingCodeSettingsResultType {
+    enabledGenerateCode: Boolean
+    codeStructure: String
+    startValue: String
+    allowEdit: Boolean
+}
