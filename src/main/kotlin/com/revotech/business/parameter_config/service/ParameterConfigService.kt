@@ -135,7 +135,12 @@ class ParameterConfigService(
         return if (codeSettings?.startValue == null) {
             false
         } else {
-            codeSettings.startValue = codeSettings.startValue!! + 1
+            val current = codeSettings.startValue!!.toIntOrNull() ?: return false
+            val incremented = current + 1
+
+            val padded = incremented.toString().padStart(codeSettings.startValue!!.length, '0')
+
+            codeSettings.startValue = padded
             parameterConfigRepository.save(config)
             true
         }
